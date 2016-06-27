@@ -1,19 +1,18 @@
 package pl.grzyb.andrzej.shoppinglist;
 
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-public class ShoppingListActivity extends AppCompatActivity {
+public class ShoppingListViewActivity extends AppCompatActivity {
 
     public static final String EXTRA_SHOPPING_LIST_NAME = "shoppingListName";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shopping_list);
+        setContentView(R.layout.activity_shopping_list_view);
 
         // this is not working :(
       //  getActionBar().setDisplayHomeAsUpEnabled(true);

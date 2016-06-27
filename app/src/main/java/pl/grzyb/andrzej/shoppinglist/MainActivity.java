@@ -1,9 +1,12 @@
 package pl.grzyb.andrzej.shoppinglist;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.view.ContextMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,19 +17,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import pl.grzyb.andrzej.shoppinglist.data.DbContract;
+import pl.grzyb.andrzej.shoppinglist.data.DbHelper;
+import pl.grzyb.andrzej.shoppinglist.data.DbUtilities;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private ListView shoppingListsListView;
-    private ArrayAdapter<String> adapter;
+    private SimpleCursorAdapter cursorAdapter = null;
+    private SQLiteDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +43,11 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, ShoppingListEditActivity.class);
+                startActivity(intent);
+
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
             }
         });
 
@@ -55,31 +61,54 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // populate Shopping Lists list
+
+//        // Get some fake ShoppingList data
+//        long userId;
+//        long shoppingListId;
+//        userId = DbDummyData.insertDummyUser(this, "andgrzyb", "andrzej");
+//        shoppingListId = DbDummyData.insertDummyShoppingList(this, "Biedronka", "zakupy spożywcze", userId);
+//        DbDummyData.insertDummyItem(this, "mleko", 1.5, "L", shoppingListId, 0, 0, userId);
+//        DbDummyData.insertDummyItem(this, "ser żółty", 300, "g", shoppingListId, 1, 0, userId);
+//        DbDummyData.insertDummyItem(this, "bułki", 5, "szt.", shoppingListId, 2, 0, userId);
+//        shoppingListId = DbDummyData.insertDummyShoppingList(this, "Castorama", "przy okazji jak się będzie", userId);
+//        DbDummyData.insertDummyItem(this, "młotek", 1, "szt.", shoppingListId, 0, 0, userId);
+//        DbDummyData.insertDummyItem(this, "kołki rozporowe 4x10mm", 8, "szt.", shoppingListId, 1, 0, userId);
+//        DbDummyData.insertDummyItem(this, "gwoździe", 50, "szt.", shoppingListId, 2, 0, userId);
+//        DbDummyData.insertDummyItem(this, "żarówka 100W", 1, "szt.", shoppingListId, 2, 0, userId);
+
+
+        // Populate Shopping Lists list
         shoppingListsListView = (ListView) findViewById(R.id.shoppingListsListView);
 
-        String shoppingListsListValues[] = {"Biedronka", "Castorama", "Auchan", "bazarek", "Castorama", "Auchan", "bazarek", "Castorama", "Auchan", "bazarek", "Castorama", "Auchan", "bazarek"};
+        // Get reference to readable DB
+        DbHelper dbHelper = new DbHelper(this);
+        db = dbHelper.getReadableDatabase();
+        // Query DB to get Cursor to list of all Shopping Lists
+        final Cursor cursor = DbUtilities.getAllShoppingLists(db);
 
-        ArrayList<String> shoppingListsList = new ArrayList<String>();
-        shoppingListsList.addAll(Arrays.asList(shoppingListsListValues));
-
-        adapter = new ArrayAdapter<String>(this, R.layout.listview_shoplists, R.id.shoppingListsTextView, shoppingListsList);
+        // Define SimpleCursorAdapter
+        cursorAdapter = new SimpleCursorAdapter(this,
+                R.layout.listview_shoplists,
+                cursor,
+                new String[]{DbContract.ShoppingListsEntry.COLUMN_NAME, DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE},
+                new int[]{R.id.shoppingListNameTextView, R.id.shoppingListModificationDateTextView},
+                0);
 
         // set the Adapter and OnClickListener
-        shoppingListsListView.setAdapter(adapter);
+        shoppingListsListView.setAdapter(cursorAdapter);
         shoppingListsListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // get clicked Object
-                Object object = shoppingListsListView.getItemAtPosition(position);
-                String shoppingListName = (String) object;
+
+                cursor.moveToPosition(position);
+                String shoppingListName = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
 
                 // make a Toast with the clicked item description (just to test it)
                 Toast toast = Toast.makeText(getApplicationContext(), shoppingListName, Toast.LENGTH_SHORT);
                 toast.show();
 
-                Intent intent = new Intent(MainActivity.this, ShoppingListActivity.class);
-                intent.putExtra(ShoppingListActivity.EXTRA_SHOPPING_LIST_NAME, shoppingListName);
+                Intent intent = new Intent(MainActivity.this, ShoppingListViewActivity.class);
+                intent.putExtra(ShoppingListViewActivity.EXTRA_SHOPPING_LIST_NAME, shoppingListName);
                 startActivity(intent);
 
             }
@@ -87,6 +116,64 @@ public class MainActivity extends AppCompatActivity
 
 
         });
+
+
+        // Add Context Menu to ListView
+        registerForContextMenu(shoppingListsListView);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId()==R.id.shoppingListsListView) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+
+            // Get name of clicked ShoppingList
+            final Cursor cursor = DbUtilities.getAllShoppingLists(db);
+            cursor.moveToPosition(info.position);
+            String shoppingListName = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
+            // Set the name as a Context Menu header
+            menu.setHeaderTitle(shoppingListName);
+
+            // Show menu options
+            String[] menuItems = getResources().getStringArray(R.array.contextMenuShoppingList);
+            for (int i = 0; i<menuItems.length; i++) {
+                menu.add(Menu.NONE, i, i, menuItems[i]);
+            }
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        // Move Cursor to the clicked Shopping List item in the ListView
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        final Cursor cursor = DbUtilities.getAllShoppingLists(db);
+        cursor.moveToPosition(info.position);
+        // Get the _ID of clicked ShoppingList
+        int shoppingListId = cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
+        // Get clicked menu option's ID (Edit/Delete/Share)
+        int menuItemIndex = item.getItemId();
+
+
+        switch (menuItemIndex) {
+            case 0: // Edit
+                Intent intent = new Intent(MainActivity.this, ShoppingListEditActivity.class);
+                intent.putExtra(ShoppingListEditActivity.EXTRA_SHOPPING_LIST_ID, shoppingListId);
+                startActivity(intent);
+                break;
+            case 1: // Delete
+                DbUtilities.deleteShoppingList(this, shoppingListId);
+                cursorAdapter.swapCursor(DbUtilities.getAllShoppingLists(db));
+                break;
+            case 2: // Share
+                Toast.makeText(this, getResources().getStringArray(R.array.contextMenuShoppingList)[menuItemIndex], Toast.LENGTH_SHORT);
+                break;
+            default:
+                Toast.makeText(this, "WTF?!", Toast.LENGTH_SHORT);
+                break;
+        }
+
+        return true;
     }
 
     @Override
@@ -95,14 +182,16 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            // In MainActivity BackButton hides the app
+            moveTaskToBack(true);
+            //super.onBackPressed();
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+     //   getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -144,5 +233,12 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Close database
+        db.close();
+
     }
 }

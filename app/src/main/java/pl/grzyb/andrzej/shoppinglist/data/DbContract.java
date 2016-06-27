@@ -21,8 +21,8 @@ public final class DbContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String PATH_ITEMS = "items";
-    public static final String PATH_SHOPPING_LIST = "shoppingList";
-//    public static final String PATH_BIND_LIST = "bindList";
+    public static final String PATH_SHOPPING_LIST = "shoppingLists";
+    public static final String PATH_USERS = "users";
 
     // To make it easy to query for the exact date, we normalize all dates that go into
     // the database to the start of the the Julian day at UTC.
@@ -38,15 +38,17 @@ public final class DbContract {
     /* Items in the shopping list, e.g. milk, cheese, ham, etc.  */
     public static final class ItemsEntry implements BaseColumns {
         public static final String TABLE_NAME = "items";
-    //    public static final String COLUMN_ID = "id";
+        public static final String COLUMN_ID_CLOUD = "idCloud";  // Items id in the Cloud
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_QUANTITY = "quantity";
         public static final String COLUMN_QUANTITY_UNIT = "quantityUnit";
         public static final String COLUMN_LIST_ID = "listId";
+        public static final String COLUMN_LIST_ID_CLOUD = "listIdCloud";
         public static final String COLUMN_POSITION = "position";
         public static final String COLUMN_CHECKED = "checked";
         public static final String COLUMN_MODIFICATION_DATE = "modificationDate";
-        public static final String COLUMN_MODIFIED_BY = "modifiedBy"; // id of the user who did the last modification
+        public static final String COLUMN_MODIFIED_BY_ID = "modifiedById"; // id of the user who did the last modification
+        public static final String COLUMN_MODIFIED_BY_ID_CLOUD = "modifiedByIdCloud"; // id of the user who did the last modification
 
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_ITEMS).build();
@@ -62,14 +64,17 @@ public final class DbContract {
     }
 
     /* Shopping Lists with owner, modifiers IDs, dates, etc. */
-    public static final class ShoppingListEntry implements BaseColumns {
-        public static final String TABLE_NAME = "shoppingList";
-        //  public static final String COLUMN_ID = "id";
+    public static final class ShoppingListsEntry implements BaseColumns {
+        public static final String TABLE_NAME = "shoppingLists";
+        public static final String COLUMN_ID_CLOUD = "idCloud";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_OWNER_ID = "ownerId";
+        public static final String COLUMN_OWNER_ID_CLOUD = "ownerIdCloud";
         public static final String COLUMN_MODIFICATION_DATE = "modificationDate";
-        public static final String COLUMN_MODIFIED_BY = "modifiedBy"; // id of the user who did the last modification
+        public static final String COLUMN_MODIFIED_BY_ID = "modifiedById"; // id of the user who did the last modification
+        public static final String COLUMN_MODIFIED_BY_ID_CLOUD = "modifiedByIdCloud"; // id of the user who did the last modification
+        public static final String COLUMN_HASHTAG = "hashtag";
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_SHOPPING_LIST).build();
 
@@ -83,6 +88,24 @@ public final class DbContract {
         }
     }
 
+    /* Users table. Contain only relevant user's data, e.g. people with whom the User share ShoppingLists with */
+    public static final class UsersEntry implements BaseColumns {
+        public static final String TABLE_NAME = "users";
+        public static final String COLUMN_ID_CLOUD = "idCloud";
+        public static final String COLUMN_LOGIN = "login";
+        public static final String COLUMN_NAME = "name";
+
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_USERS;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_USERS;
+
+        public static final Uri buildShoppingListUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
 //    /* Table which bind Items to its Shopping List */
 //    public static final class BindListEntry implements BaseColumns {
 //        public static final String TABLE_NAME = "bindList";

@@ -1,9 +1,27 @@
 <resources>
-    <string name="app_name">ShoppingList</string>
+    <string name="app_name">Shopping List</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    <string name="title_activity_shopping_list">ShoppingListActivity</string>
+    <string name="title_activity_shopping_list_add">Add Shopping List</string>
+    <string name="title_activity_shopping_list_edit">Edit Shopping List</string>
+
+    <string name="shoppingListName">Shopping list name</string>
+    <string name="shoppingListDescription">Description</string>
+    <string name="ButtonAdd">Add</string>
+    <string name="ButtonSave">Save</string>
+
+    <string name="errorNameTooShort">Name should have at least 3 characters.</string>
+    <string name="errorNoRecord">Can\'t find record :(</string>
+
+    <string name="notifyShoppingListAdded">Shopping List successfully created.</string>
+    <string name="notifyShoppingListUpdated">Shopping List successfully updated</string>
+
+    <string-array name="contextMenuShoppingList">
+        <item>Edit</item>
+        <item>Delete</item>
+        <item>Share</item>
+    </string-array>
 </resources>

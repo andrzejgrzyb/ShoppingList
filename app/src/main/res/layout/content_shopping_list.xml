@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="pl.grzyb.andrzej.shoppinglist.ShoppingListActivity">
+    tools:context=".ShoppingListViewActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,9 +20,9 @@
 
 
     <ListView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/productsListView" />
+        android:id="@+id/itemListView" />
 
 
 

@@ -44,8 +44,8 @@ public class TestDb  extends AndroidTestCase {
         // Android metadata (db version information)
         final HashSet<String> tableNameHashSet = new HashSet<String>();
         tableNameHashSet.add(DbContract.ItemsEntry.TABLE_NAME);
-        tableNameHashSet.add(DbContract.ShoppingListEntry.TABLE_NAME);
-//        tableNameHashSet.add(DbContract.BindListEntry.TABLE_NAME);
+        tableNameHashSet.add(DbContract.ShoppingListsEntry.TABLE_NAME);
+        tableNameHashSet.add(DbContract.UsersEntry.TABLE_NAME);
 
         mContext.deleteDatabase(DbHelper.DATABASE_NAME);
         SQLiteDatabase db = new DbHelper(
@@ -63,11 +63,11 @@ public class TestDb  extends AndroidTestCase {
             tableNameHashSet.remove(c.getString(0));
         } while( c.moveToNext() );
 
-        // if this fails, it means that your database doesn't contain both the location entry
-        // and weather entry tables
+        // if this fails, it means that your database doesn't contain all the entry tables
         assertTrue("Error: Your database was created without both the location entry and weather entry tables",
                 tableNameHashSet.isEmpty());
 
+        // *********** Items table  *****************************************************************
         // now, do our tables contain the correct columns?
         c = db.rawQuery("PRAGMA table_info(" + DbContract.ItemsEntry.TABLE_NAME + ")",
                 null);
@@ -78,14 +78,16 @@ public class TestDb  extends AndroidTestCase {
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> itemsColumnHashSet = new HashSet<String>();
         itemsColumnHashSet.add(DbContract.ItemsEntry._ID);
+        itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_ID_CLOUD);
         itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_NAME);
         itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_QUANTITY);
         itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT);
         itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_LIST_ID);
+        itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_LIST_ID_CLOUD);
         itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_POSITION);
         itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_CHECKED);
         itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE);
-        itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_MODIFIED_BY);
+        itemsColumnHashSet.add(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID);
 
         int columnNameIndex = c.getColumnIndex("name");
         do {
@@ -93,14 +95,230 @@ public class TestDb  extends AndroidTestCase {
             itemsColumnHashSet.remove(columnName);
         } while(c.moveToNext());
 
+        // if this fails, it means that your database doesn't contain all of the required entry columns
+        assertTrue("Error: The database doesn't contain all of the required location entry columns",
+                itemsColumnHashSet.isEmpty());
+
+        // **********  ShoppingList table ***************************************************************
+        // now, do our tables contain the correct columns?
+        c = db.rawQuery("PRAGMA table_info(" + DbContract.ShoppingListsEntry.TABLE_NAME + ")",
+                null);
+
+        assertTrue("Error: This means that we were unable to query the database for table information.",
+                c.moveToFirst());
+
+        // Build a HashSet of all of the column names we want to look for
+        final HashSet<String> shoppingListColumnHashSet = new HashSet<String>();
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry._ID);
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD);
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_NAME);
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION);
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID);
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE);
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID);
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_HASHTAG);
+
+        columnNameIndex = c.getColumnIndex("name");
+        do {
+            String columnName = c.getString(columnNameIndex);
+            shoppingListColumnHashSet.remove(columnName);
+        } while(c.moveToNext());
+
         // if this fails, it means that your database doesn't contain all of the required location
         // entry columns
         assertTrue("Error: The database doesn't contain all of the required location entry columns",
-                itemsColumnHashSet.isEmpty());
+                shoppingListColumnHashSet.isEmpty());
+
+        // **********  USERS table ***************************************************************
+        // now, do our tables contain the correct columns?
+        c = db.rawQuery("PRAGMA table_info(" + DbContract.UsersEntry.TABLE_NAME + ")",
+                null);
+
+        assertTrue("Error: This means that we were unable to query the database for table information.",
+                c.moveToFirst());
+
+        // Build a HashSet of all of the column names we want to look for
+        final HashSet<String> usersColumnHashSet = new HashSet<String>();
+        usersColumnHashSet.add(DbContract.UsersEntry._ID);
+        usersColumnHashSet.add(DbContract.UsersEntry.COLUMN_ID_CLOUD);
+        usersColumnHashSet.add(DbContract.UsersEntry.COLUMN_LOGIN);
+        usersColumnHashSet.add(DbContract.UsersEntry.COLUMN_NAME);
+
+        columnNameIndex = c.getColumnIndex("name");
+        do {
+            String columnName = c.getString(columnNameIndex);
+            usersColumnHashSet.remove(columnName);
+        } while(c.moveToNext());
+
+        // if this fails, it means that your database doesn't contain all of the required location
+        // entry columns
+        assertTrue("Error: The database doesn't contain all of the required location entry columns",
+                usersColumnHashSet.isEmpty());
+
+
         db.close();
     }
 
 
+    // Adds a user to UserTable and checks if data is being added and verifies added data
+    public void testUsersTable() {
+        // Get reference to writable database
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // Create ContentValues of what needs to be inserted
+        ContentValues testValues = new ContentValues();
+        testValues.put(DbContract.UsersEntry.COLUMN_ID_CLOUD, 0);
+        testValues.put(DbContract.UsersEntry.COLUMN_LOGIN, "test_login");
+        testValues.put(DbContract.UsersEntry.COLUMN_NAME, "andrzej");
+
+        // Insert values into database and get a row ID back
+        long userRowId;
+        userRowId = db.insert(DbContract.UsersEntry.TABLE_NAME, null, testValues);
+
+        // Verify if we got a row back
+        assertTrue("Error: Don't have a row ID back.", userRowId != -1);
+
+        // Query DB and receive a Cursor back
+        Cursor cursor = db.query(
+                DbContract.UsersEntry.TABLE_NAME,  // Table to query
+                null,   // all columns
+                null,   // Columns for the "where" clause
+                null,   // Values for the "where" clause
+                null,   // Columns to group by
+                null,   // Columns to filter by row groups
+                null   // sort order
+        );
+
+        // Move the cursor to a valid database row and check to see if we got any records back
+        // from the query
+        assertTrue("Error: No Records returnd from Users query", cursor.moveToFirst());
+
+        // Validate data in resulting cursor with textValues
+        TestUtilities.validateCurrentRecord("Error: User Query Validation Failed.", cursor, testValues);
+
+        // Move the cursor to demonstrate that there is only one record in the DB
+        assertFalse("Error: More that one record returned for the User query", cursor.moveToNext());
+
+        // Close Cursor na DB
+        cursor.close();
+        db.close();
+
+        // Return the ID of the new User
+       // return userRowId;
+    }
+
+    // Adds a ShoppingList to the Table and verifies if it was correctly added
+    public void testShoppingListTable() {
+        // Get reference to writable database
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // Create ContentValues of what needs to be inserted
+        ContentValues testValues = new ContentValues();
+        long testUser = 1;
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, 0);
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, "Zakupy w Biedronce");
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, "Rzeczy, które trzeba kupić w Biedronce");
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID, testUser);
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, 0);
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, TestUtilities.TEST_DATE);
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, testUser);
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, 0);
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_HASHTAG, "qwerty1123456");
+
+        // Insert values into database and get a row ID back
+        long shoppingListRowId;
+        shoppingListRowId = db.insert(DbContract.ShoppingListsEntry.TABLE_NAME, null, testValues);
+
+        // Verify if we got a row back
+        assertTrue("Error: Don't have a row ID back.", shoppingListRowId != -1);
+
+        // Query DB and receive a Cursor back
+        Cursor cursor = db.query(
+                DbContract.ShoppingListsEntry.TABLE_NAME,  // Table to query
+                null,   // all columns
+                null,   // Columns for the "where" clause
+                null,   // Values for the "where" clause
+                null,   // Columns to group by
+                null,   // Columns to filter by row groups
+                null   // sort order
+        );
+
+        // Move the cursor to a valid database row and check to see if we got any records back
+        // from the query
+        assertTrue("Error: No Records returnd from Users query", cursor.moveToFirst());
+
+        // Validate data in resulting cursor with textValues
+        TestUtilities.validateCurrentRecord("Error: User Query Validation Failed.", cursor, testValues);
+
+        // Move the cursor to demonstrate that there is only one record in the DB
+        assertFalse("Error: More that one record returned for the User query", cursor.moveToNext());
+
+        // Close Cursor na DB
+        cursor.close();
+        db.close();
+
+   //     return shoppingListRowId;
+    }
+
+    // Adds a ShoppingList to the Table and verifies if it was correctly added
+    public void testItemsTable() {
+        // Get reference to writable database
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // Create ContentValues of what needs to be inserted
+        ContentValues testValues = new ContentValues();
+        long testUser = 1;
+        long testShoppingList = 2;
+        testValues.put(DbContract.ItemsEntry.COLUMN_ID_CLOUD, 0);
+        testValues.put(DbContract.ItemsEntry.COLUMN_NAME, "mleko");
+        testValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY, 1.5);
+        testValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, "L");
+        testValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID, testShoppingList);
+        testValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID_CLOUD, 0);
+        testValues.put(DbContract.ItemsEntry.COLUMN_POSITION, 1);
+        testValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, 0);
+        testValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, TestUtilities.TEST_DATE);
+        testValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, testUser);
+        testValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, 0);
+
+
+        // Insert values into database and get a row ID back
+        long itemRowId;
+        itemRowId = db.insert(DbContract.ItemsEntry.TABLE_NAME, null, testValues);
+
+        // Verify if we got a row back
+        assertTrue("Error: Don't have a row ID back.", itemRowId != -1);
+
+        // Query DB and receive a Cursor back
+        Cursor cursor = db.query(
+                DbContract.ItemsEntry.TABLE_NAME,  // Table to query
+                null,   // all columns
+                null,   // Columns for the "where" clause
+                null,   // Values for the "where" clause
+                null,   // Columns to group by
+                null,   // Columns to filter by row groups
+                null   // sort order
+        );
+
+        // Move the cursor to a valid database row and check to see if we got any records back
+        // from the query
+        assertTrue("Error: No Records returned from Users query", cursor.moveToFirst());
+
+        // Validate data in resulting cursor with textValues
+        TestUtilities.validateCurrentRecord("Error: User Query Validation Failed.", cursor, testValues);
+
+        // Move the cursor to demonstrate that there is only one record in the DB
+        assertFalse("Error: More that one record returned for the User query", cursor.moveToNext());
+
+        // Close Cursor na DB
+        cursor.close();
+        db.close();
+
+       // return itemRowId;
+    }
     /*
         Students:  Here is where you will build code to test that we can insert and query the
         location database.  We've done a lot of work for you.  You'll want to look in TestUtilities
@@ -171,7 +389,7 @@ public class TestDb  extends AndroidTestCase {
 //        cursor.close();
 //        db.close();
 //    }
-//
+
 //
 //    /*
 //        Students: This is a helper method for the testWeatherTable quiz. You can move your
