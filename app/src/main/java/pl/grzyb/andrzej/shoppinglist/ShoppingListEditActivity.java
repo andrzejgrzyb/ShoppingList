@@ -21,6 +21,8 @@ public class ShoppingListEditActivity extends AppCompatActivity {
     private int shoppingListId;
     private EditText shoppingListNameEditText;
     private EditText shoppingListDescriptionEditText;
+    private String oldName;
+    private String oldDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
         // Get references to EditText views
         shoppingListNameEditText = (EditText) findViewById(R.id.shoppingListNameEditText);
         shoppingListDescriptionEditText = (EditText) findViewById(R.id.shoppingListDescriptionEditText);
+
 
         // Get the intent
         Intent intent = getIntent();
@@ -53,11 +56,11 @@ public class ShoppingListEditActivity extends AppCompatActivity {
                     null );
             if (cursor.moveToFirst()) {
                 // Get Name and Description from DB
-                String name = cursor.getString(cursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_NAME));
-                String description = cursor.getString(cursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION));
+                oldName = cursor.getString(cursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_NAME));
+                oldDescription = cursor.getString(cursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION));
                 // Put Name and Description into EditText views
-                shoppingListNameEditText.setText(name);
-                shoppingListDescriptionEditText.setText(description);
+                shoppingListNameEditText.setText(oldName);
+                shoppingListDescriptionEditText.setText(oldDescription);
                 cursor.close();
             }
             else {
@@ -84,21 +87,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
         else {
             // Get description and insert row into DB
             String description = shoppingListDescriptionEditText.getText().toString().trim();
-            if (editFlag) {
-                int result = DbUtilities.updateShoppingList(this,
-                        shoppingListId,
-                        0,
-                        name,
-                        description,
-                        DbUtilities.getCurrentTime(),
-                        DbUtilities.getCurrentUserIdFromDB(this),
-                        DbUtilities.getCurrentUserIdCloud(this));
-                if (result == 1) {
-                    // 1 row updated, make a Toast and go back to MainActivity
-                    Toast.makeText(ShoppingListEditActivity.this, R.string.notifyShoppingListUpdated, Toast.LENGTH_SHORT).show();
-                }
-            }
-            else {
+            if (!editFlag) {
                 long rowId = DbUtilities.insertShoppingList(this,
                         0,                  // don't know IdCloud yet, this should be updated by the sync class
                         name,
@@ -114,6 +103,25 @@ public class ShoppingListEditActivity extends AppCompatActivity {
                     Toast.makeText(ShoppingListEditActivity.this, R.string.notifyShoppingListAdded, Toast.LENGTH_SHORT).show();
                 }
             }
+            else if (!oldName.equals(name) || !oldDescription.equals(description)) {
+                int result = DbUtilities.updateShoppingList(this,
+                        shoppingListId,
+                        0,
+                        name,
+                        description,
+                        DbUtilities.getCurrentTime(),
+                        DbUtilities.getCurrentUserIdFromDB(this),
+                        DbUtilities.getCurrentUserIdCloud(this));
+                if (result == 1) {
+                    // 1 row updated, make a Toast and go back to MainActivity
+                    Toast.makeText(ShoppingListEditActivity.this, R.string.notifyShoppingListUpdated, Toast.LENGTH_SHORT).show();
+                }
+            }
+            else {
+                Toast.makeText(ShoppingListEditActivity.this, "Nothing changed", Toast.LENGTH_SHORT).show();
+
+            }
+
             Intent intent = new Intent(ShoppingListEditActivity.this, MainActivity.class);
             startActivity(intent);
 

@@ -4,9 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.text.DateFormat;
+
+import android.text.format.DateUtils;
 import android.text.format.Time;
 
 import java.util.Date;
+
+import pl.grzyb.andrzej.shoppinglist.R;
 
 /**
  * Created by Andrzej on 24.06.2016.
@@ -165,4 +170,20 @@ public class DbUtilities {
         return System.currentTimeMillis();
     }
 
+    public static String formatDate(Context applicationContext, long milliesSinceEpoch) {
+        long currentMilliesSinceEpoch = System.currentTimeMillis();
+        Date inputDate = new Date(milliesSinceEpoch);
+//return String.valueOf(dateInMillies);
+        long difference = currentMilliesSinceEpoch - milliesSinceEpoch;
+        if (difference < 60*1000) {
+            return applicationContext.getResources().getString(R.string.notifyLessThanMinuteAgo);
+        }
+        else if (difference < 60*60*24*7 * 1000) {
+            String output = DateUtils.getRelativeTimeSpanString (milliesSinceEpoch, currentMilliesSinceEpoch, 0).toString();
+            return output;
+            //TODO: fix the issue that adapter doesn't update when time passes
+        } else {
+            return DateFormat.getDateInstance().format(inputDate);
+        }
+    }
 }

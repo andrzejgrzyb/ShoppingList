@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import pl.grzyb.andrzej.shoppinglist.data.DbContract;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setTitle(R.string.title_activity_main);
 
         // populate Floating Action Button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -96,6 +98,20 @@ public class MainActivity extends AppCompatActivity
 
         // set the Adapter and OnClickListener
         shoppingListsListView.setAdapter(cursorAdapter);
+        cursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+
+                if (columnIndex == cursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE)) {
+                    long modificationDate = cursor.getLong(columnIndex);
+                    TextView textView = (TextView) view;
+                    textView.setText(DbUtilities.formatDate(getApplicationContext(), modificationDate));
+                    return true;
+                }
+
+                return false;
+            }
+        });
         shoppingListsListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -240,5 +256,11 @@ public class MainActivity extends AppCompatActivity
         // Close database
         db.close();
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cursorAdapter.notifyDataSetChanged();
     }
 }

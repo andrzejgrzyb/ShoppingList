@@ -18,6 +18,9 @@
 
     <string name="notifyShoppingListAdded">Shopping List successfully created.</string>
     <string name="notifyShoppingListUpdated">Shopping List successfully updated</string>
+    <string name="notifyLessThanMinuteAgo">just now</string>
+    <string name="TextYourShoppingLists">Your shopping lists</string>
+    <string name="title_activity_main">Your shopping lists</string>
 
     <string-array name="contextMenuShoppingList">
         <item>Edit</item>
