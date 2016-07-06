@@ -158,6 +158,29 @@ public class DbUtilities {
         return result;
     }
 
+    public static Cursor getShoppingListItemsCursor(SQLiteDatabase db, long shoppingListId) {
+        Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
+                null,
+                DbContract.ItemsEntry.COLUMN_LIST_ID + " = ?",
+                new String[] {Long.toString(shoppingListId)},
+                null,
+                null,
+                DbContract.ItemsEntry.COLUMN_POSITION,
+                null);
+        return cursor;
+    }
+
+    public static Cursor getShoppingListCursor(SQLiteDatabase db, long shoppingListId) {
+        Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
+                null, // columns
+                DbContract.ShoppingListsEntry._ID + " = ?",
+                new String[]{Long.toString(shoppingListId)},
+                null,
+                null,
+                null );
+        return cursor;
+    }
+
     public static long getCurrentUserIdFromDB(Context mContext) {
         return 1;
     }

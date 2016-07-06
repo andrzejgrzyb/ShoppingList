@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_activity_toolbar);
         setSupportActionBar(toolbar);
         setTitle(R.string.title_activity_main);
 
@@ -47,9 +47,6 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, ShoppingListEditActivity.class);
                 startActivity(intent);
-
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
             }
         });
 
@@ -64,7 +61,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-//        // Get some fake ShoppingList data
+        // Get some fake ShoppingList data
 //        long userId;
 //        long shoppingListId;
 //        userId = DbDummyData.insertDummyUser(this, "andgrzyb", "andrzej");
@@ -80,7 +77,7 @@ public class MainActivity extends AppCompatActivity
 
 
         // Populate Shopping Lists list
-        shoppingListsListView = (ListView) findViewById(R.id.shoppingListsListView);
+        shoppingListsListView = (ListView) findViewById(R.id.shopping_lists_list_view);
 
         // Get reference to readable DB
         DbHelper dbHelper = new DbHelper(this);
@@ -118,13 +115,14 @@ public class MainActivity extends AppCompatActivity
 
                 cursor.moveToPosition(position);
                 String shoppingListName = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
+                long shoppingListId = cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
 
                 // make a Toast with the clicked item description (just to test it)
                 Toast toast = Toast.makeText(getApplicationContext(), shoppingListName, Toast.LENGTH_SHORT);
                 toast.show();
 
                 Intent intent = new Intent(MainActivity.this, ShoppingListViewActivity.class);
-                intent.putExtra(ShoppingListViewActivity.EXTRA_SHOPPING_LIST_NAME, shoppingListName);
+                intent.putExtra(ShoppingListViewActivity.EXTRA_SHOPPING_LIST_ID, shoppingListId);
                 startActivity(intent);
 
             }
@@ -141,7 +139,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
-        if (v.getId()==R.id.shoppingListsListView) {
+        if (v.getId()==R.id.shopping_lists_list_view) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
 
             // Get name of clicked ShoppingList
