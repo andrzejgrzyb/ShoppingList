@@ -18,12 +18,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShoppingListViewActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity android:name=".ShoppingListEditActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+        <activity
+            android:name=".ShoppingListViewActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".ShoppingListEditActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:noHistory="true"></activity>
+        <activity
+            android:name=".ItemEditActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:noHistory="true"></activity>
     </application>
 
 </manifest>

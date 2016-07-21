@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="context_menu_main_activity">
+        <item>Edit</item>
+        <item>Delete</item>
+        <item>Share</item>
+    </string-array>
+    <string-array name="context_menu_shopping_list_view_activity">
+        <item>Edit</item>
+        <item>Delete</item>
+    </string-array>
     <attr format="reference" name="drawerArrowStyle"/>
     <attr format="dimension" name="height"/>
     <attr format="boolean" name="isLightTheme"/>
@@ -230,13 +239,14 @@
     <dimen name="design_tab_text_size_2line">12sp</dimen>
     <item format="float" name="disabled_alpha_material_dark" type="dimen">0.30</item>
     <item format="float" name="disabled_alpha_material_light" type="dimen">0.26</item>
-    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fab_margin">26dp</dimen>
     <item format="float" name="highlight_alpha_material_colored" type="dimen">0.26</item>
     <item format="float" name="highlight_alpha_material_dark" type="dimen">0.20</item>
     <item format="float" name="highlight_alpha_material_light" type="dimen">0.12</item>
     <dimen name="item_touch_helper_max_drag_scroll_per_frame">20dp</dimen>
     <dimen name="item_touch_helper_swipe_escape_max_velocity">800dp</dimen>
     <dimen name="item_touch_helper_swipe_escape_velocity">120dp</dimen>
+    <dimen name="listview_padding">80dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="notification_large_icon_height">64dp</dimen>
@@ -287,14 +297,45 @@
     <string name="abc_shareactionprovider_share_with_application">Share with %s</string>
     <string name="abc_toolbar_collapse_description">Collapse</string>
     <string name="action_settings">Settings</string>
-    <string name="app_name">ShoppingList</string>
+    <string name="app_name">Shopping List</string>
     <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
     <string name="bottom_sheet_behavior" translatable="false">android.support.design.widget.BottomSheetBehavior</string>
+    <string name="button_add">Add</string>
+    <string name="button_save">Save</string>
     <string name="character_counter_pattern" translatable="false">%1$d / %2$d</string>
+    <string name="description">Description</string>
+    <string name="error_name_too_short">Name should have at least 3 characters.</string>
+    <string name="error_no_record">Can\'t find record :(</string>
+    <string name="hint_item_name">Item name</string>
+    <string name="hint_item_quantity">Quantity</string>
+    <string name="hint_shopping_list_description">Description</string>
+    <string name="hint_shopping_list_name">Shopping list name</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="notify_item_added">Item added</string>
+    <string name="notify_item_updated">Item updated</string>
+    <string name="notify_shopping_list_added">Shopping List successfully created</string>
+    <string name="notify_shopping_list_updated">Shopping List successfully updated</string>
+    <string name="radio_quantity_unit_fl_oz">fl oz</string>
+    <string name="radio_quantity_unit_ft"/>
+    <string name="radio_quantity_unit_g">g</string>
+    <string name="radio_quantity_unit_gal">gal</string>
+    <string name="radio_quantity_unit_kg">kg</string>
+    <string name="radio_quantity_unit_l">l</string>
+    <string name="radio_quantity_unit_lb">lb</string>
+    <string name="radio_quantity_unit_m">m</string>
+    <string name="radio_quantity_unit_ml">ml</string>
+    <string name="radio_quantity_unit_oz">oz</string>
+    <string name="radio_quantity_unit_pcs">pcs.</string>
     <string name="status_bar_notification_info_overflow">999+</string>
-    <string name="title_activity_shopping_list">ShoppingListActivity</string>
+    <string name="text_less_than_minute_ago">just now</string>
+    <string name="text_quantity">Quantity</string>
+    <string name="text_your_shopping_lists">Your shopping lists</string>
+    <string name="title_activity_item_add">Add item</string>
+    <string name="title_activity_item_edit">Edit item</string>
+    <string name="title_activity_main">Your shopping lists</string>
+    <string name="title_activity_shopping_list_add">Add Shopping List</string>
+    <string name="title_activity_shopping_list_edit">Edit Shopping List</string>
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat"/>
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light"/>
     <style name="Animation.AppCompat.Dialog" parent="Base.Animation.AppCompat.Dialog"/>
@@ -1378,6 +1419,16 @@
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
     </style>
     <style name="Platform.Widget.AppCompat.Spinner" parent="android:Widget.Spinner"/>
+    <style name="QuantityUnitRadio">
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:width">50dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:button">@null</item>
+        <item name="android:textColor">@color/radiobutton_unit</item>
+
+
+    </style>
     <style name="RtlOverlay.DialogWindowTitle.AppCompat" parent="Base.DialogWindowTitle.AppCompat">
     </style>
     <style name="RtlOverlay.Widget.AppCompat.ActionBar.TitleItem" parent="android:Widget">

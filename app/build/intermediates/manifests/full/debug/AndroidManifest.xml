@@ -24,7 +24,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="pl.grzyb.andrzej.shoppinglist.ShoppingListActivity" />
+        <activity
+            android:name="pl.grzyb.andrzej.shoppinglist.ShoppingListViewActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="pl.grzyb.andrzej.shoppinglist.ShoppingListEditActivity"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="pl.grzyb.andrzej.shoppinglist.ItemEditActivity"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

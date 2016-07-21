@@ -11,19 +11,15 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="pl.grzyb.andrzej.shoppinglist.MainActivity"
-    tools:showIn="@layout/app_bar_main">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Twoje listy zakupów" />
+    tools:showIn="@layout/activity_main">
 
 
-        <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:id="@+id/shoppingListsListView" />
-
-
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/shopping_lists_list_view"
+        android:paddingBottom="@dimen/listview_padding"
+        android:clipToPadding="false"
+        />
 
 </LinearLayout>

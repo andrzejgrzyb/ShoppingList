@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="pl.grzyb.andrzej.shoppinglist.ItemEditActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+
+        android:orientation="vertical">
+
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/item_name_edit_text"
+            android:layout_weight="1"
+            android:hint="@string/hint_item_name" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_quantity"
+                android:id="@+id/text_quantity_textView" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+"
+                android:id="@+id/button" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/item_quantity_edit_text"
+                android:hint="@string/hint_item_quantity"
+                android:minWidth="100dp"
+                android:gravity="center_horizontal" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:id="@+id/button2" />
+
+        </LinearLayout>
+
+        <!--<RadioGroup-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:id="@+id/quantity_units_radiogroup"-->
+            <!--android:clickable="false">-->
+
+            <!--<pl.grzyb.andrzej.shoppinglist.FlowLayout-->
+                <!--android:id="@+id/quantity_units_flowlayout"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content">-->
+                <pl.grzyb.andrzej.shoppinglist.FlowRadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    android:id="@+id/quantity_units_flowlayout">
+
+                <!--</RadioGroup>-->
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_pcs"
+                    android:id="@+id/quantity_unit_pcs_radio"
+                    style="@style/QuantityUnitRadio"
+                    />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_g"
+                    android:id="@+id/quantity_unit_g_radio"
+                    style="@style/QuantityUnitRadio" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_kg"
+                    android:id="@+id/quantity_unit_kg_radio"
+                    style="@style/QuantityUnitRadio" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_ml"
+                    android:id="@+id/quantity_unit_ml_radio"
+                    style="@style/QuantityUnitRadio" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_l"
+                    android:id="@+id/quantity_unit_l_radio"
+                    style="@style/QuantityUnitRadio" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_m"
+                    android:id="@+id/quantity_unit_m_radio"
+                    style="@style/QuantityUnitRadio" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_oz"
+                    android:id="@+id/quantity_unit_oz_radio"
+                    style="@style/QuantityUnitRadio" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_lb"
+                    android:id="@+id/quantity_unit_lb_radio"
+                    style="@style/QuantityUnitRadio" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_fl_oz"
+                    android:id="@+id/quantity_unit_fl_oz_radio"
+                    style="@style/QuantityUnitRadio" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_quantity_unit_gal"
+                    android:id="@+id/quantity_unit_gal_radio"
+                    style="@style/QuantityUnitRadio" />
+            <!--</pl.grzyb.andrzej.shoppinglist.FlowLayout>-->
+        </pl.grzyb.andrzej.shoppinglist.FlowRadioGroup>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_save"
+            android:id="@+id/addShoppingListButton"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:onClick="onClickSaveButton" />
+
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -19,7 +18,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
     public static final String EXTRA_SHOPPING_LIST_ID = "shoppingListId";
     // Flag to determine if it is an Editing Activity or Adding brand new List
     private boolean editFlag;
-    private int shoppingListId;
+    private long shoppingListId;
     private EditText shoppingListNameEditText;
     private EditText shoppingListDescriptionEditText;
     private String oldName;
@@ -56,7 +55,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
 
         if (editFlag) {
             // Get the list Id
-            shoppingListId = intent.getIntExtra(EXTRA_SHOPPING_LIST_ID, 0);
+            shoppingListId = intent.getLongExtra(EXTRA_SHOPPING_LIST_ID, 0);
             setTitle(R.string.title_activity_shopping_list_edit);
 
             // Get reference to readable DB
@@ -80,7 +79,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
                 cursor.close();
             }
             else {
-                Toast.makeText(this, R.string.errorNoRecord, Toast.LENGTH_SHORT);
+                Toast.makeText(this, R.string.error_no_record, Toast.LENGTH_SHORT);
             }
 
             db.close();
@@ -98,7 +97,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
 
         if (name.length() < 3) {
             // Error: name should be at least 3 characters long
-            Toast.makeText(ShoppingListEditActivity.this, R.string.errorNameTooShort, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ShoppingListEditActivity.this, R.string.error_name_too_short, Toast.LENGTH_SHORT).show();
         }
         else {
             // Get description and insert row into DB
@@ -116,7 +115,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
                         0);
                 if (rowId != -1) {
                     // Got a rowId back -> row added to DB, make a Toast and go back to MainActivity
-                    Toast.makeText(ShoppingListEditActivity.this, R.string.notifyShoppingListAdded, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ShoppingListEditActivity.this, R.string.notify_shopping_list_added, Toast.LENGTH_SHORT).show();
                 }
             }
             else if (!oldName.equals(name) || !oldDescription.equals(description)) {
@@ -130,7 +129,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
                         DbUtilities.getCurrentUserIdCloud(this));
                 if (result == 1) {
                     // 1 row updated, make a Toast and go back to MainActivity
-                    Toast.makeText(ShoppingListEditActivity.this, R.string.notifyShoppingListUpdated, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ShoppingListEditActivity.this, R.string.notify_shopping_list_updated, Toast.LENGTH_SHORT).show();
                 }
             }
             else {

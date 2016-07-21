@@ -39,18 +39,18 @@
             android:layout_height="wrap_content"
             android:id="@+id/shoppingListNameEditText"
             android:layout_weight="1"
-            android:hint="@string/shoppingListName" />
+            android:hint="@string/hint_shopping_list_name" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/shoppingListDescriptionEditText"
-            android:hint="@string/shoppingListDescription" />
+            android:hint="@string/hint_shopping_list_description" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/ButtonSave"
+            android:text="@string/button_save"
             android:id="@+id/addShoppingListButton"
             android:layout_gravity="center_horizontal"
             android:layout_weight="1"

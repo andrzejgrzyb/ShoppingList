@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import java.text.DateFormat;
 
 import android.text.format.DateUtils;
-import android.text.format.Time;
 
 import java.util.Date;
 
@@ -145,6 +144,47 @@ public class DbUtilities {
 
         return itemRowId;
     }
+
+    public static int updateItem(Context mContext,
+                                 long id, long idCloud, String name,
+                                 double quantity, String quantityUnit,
+                                 long modificationDate, long modifiedById, long modifiedByIdCloud) {
+        // Get reference to writable DB
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        // Form query
+        String where = DbContract.ItemsEntry._ID + "=?";
+        String[] whereArgs = new String[] {String.valueOf(id)};
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.ItemsEntry.COLUMN_ID_CLOUD, idCloud);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_NAME, name);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY, quantity);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, quantityUnit);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, modificationDate);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, modifiedById);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, modifiedByIdCloud);
+
+        int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
+        // Close DB
+        db.close();
+        return result;
+    }
+
+    public static boolean deleteItem(Context mContext, long id) {
+        // Get reference to writable DB
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String whereClause = DbContract.ItemsEntry._ID + "=?";
+        String[] whereArgs = new String[]{String.valueOf(id)};
+        // if number of rows affected > 0 -> result = true
+        boolean result =
+                db.delete(DbContract.ItemsEntry.TABLE_NAME, whereClause, whereArgs) > 0;
+        db.close();
+        return result;
+    }
+
     public static boolean deleteShoppingList(Context mContext, long id) {
         // Get reference to writable DB
         DbHelper dbHelper = new DbHelper(mContext);
@@ -152,6 +192,7 @@ public class DbUtilities {
 
         String whereClause = DbContract.ShoppingListsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
+        // if number of rows affected > 0 -> result = true
         boolean result =
                 db.delete(DbContract.ShoppingListsEntry.TABLE_NAME, whereClause, whereArgs) > 0;
         db.close();
@@ -199,7 +240,7 @@ public class DbUtilities {
 //return String.valueOf(dateInMillies);
         long difference = currentMilliesSinceEpoch - milliesSinceEpoch;
         if (difference < 60*1000) {
-            return applicationContext.getResources().getString(R.string.notifyLessThanMinuteAgo);
+            return applicationContext.getResources().getString(R.string.text_less_than_minute_ago);
         }
         else if (difference < 60*60*24*7 * 1000) {
             String output = DateUtils.getRelativeTimeSpanString (milliesSinceEpoch, currentMilliesSinceEpoch, 0).toString();

@@ -17,8 +17,9 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/shopping_lists_list_view" />
-
-
+        android:id="@+id/shopping_lists_list_view"
+        android:paddingBottom="@dimen/listview_padding"
+        android:clipToPadding="false"
+        />
 
 </LinearLayout>

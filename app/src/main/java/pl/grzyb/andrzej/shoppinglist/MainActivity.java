@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Get toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_activity_toolbar);
         setSupportActionBar(toolbar);
         setTitle(R.string.title_activity_main);
@@ -124,13 +126,11 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(MainActivity.this, ShoppingListViewActivity.class);
                 intent.putExtra(ShoppingListViewActivity.EXTRA_SHOPPING_LIST_ID, shoppingListId);
                 startActivity(intent);
-
             }
 
 
 
         });
-
 
         // Add Context Menu to ListView
         registerForContextMenu(shoppingListsListView);
@@ -150,10 +150,12 @@ public class MainActivity extends AppCompatActivity
             menu.setHeaderTitle(shoppingListName);
 
             // Show menu options
-            String[] menuItems = getResources().getStringArray(R.array.contextMenuShoppingList);
+            String[] menuItems = getResources().getStringArray(R.array.context_menu_main_activity);
             for (int i = 0; i<menuItems.length; i++) {
                 menu.add(Menu.NONE, i, i, menuItems[i]);
             }
+            // Close cursor
+            cursor.close();
         }
     }
 
@@ -164,10 +166,12 @@ public class MainActivity extends AppCompatActivity
         final Cursor cursor = DbUtilities.getAllShoppingLists(db);
         cursor.moveToPosition(info.position);
         // Get the _ID of clicked ShoppingList
-        int shoppingListId = cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
+        long shoppingListId = cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
         // Get clicked menu option's ID (Edit/Delete/Share)
         int menuItemIndex = item.getItemId();
 
+        // Close cursor
+        cursor.close();
 
         switch (menuItemIndex) {
             case 0: // Edit
@@ -180,7 +184,7 @@ public class MainActivity extends AppCompatActivity
                 cursorAdapter.swapCursor(DbUtilities.getAllShoppingLists(db));
                 break;
             case 2: // Share
-                Toast.makeText(this, getResources().getStringArray(R.array.contextMenuShoppingList)[menuItemIndex], Toast.LENGTH_SHORT);
+                Toast.makeText(this, getResources().getStringArray(R.array.context_menu_main_activity)[menuItemIndex], Toast.LENGTH_SHORT);
                 break;
             default:
                 Toast.makeText(this, "WTF?!", Toast.LENGTH_SHORT);
