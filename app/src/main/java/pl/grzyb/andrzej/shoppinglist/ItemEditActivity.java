@@ -9,10 +9,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.sql.Types;
+import java.util.Arrays;
 import java.util.Locale;
 
 import pl.grzyb.andrzej.shoppinglist.data.DbContract;
@@ -27,10 +32,12 @@ public class ItemEditActivity extends AppCompatActivity {
     private boolean editFlag;
     private long shoppingListId;
     private long shoppingListIdCloud;
+    private String itemQuantityUnit;
     private long itemId;
     private long itemIdCloud;
     private EditText itemNameEditText;
     private EditText itemQuantityEditText;
+    private RadioGroup itemQuantityUnitRadioGroup;
     private String oldName;
     private double oldQuantity;
     private String oldQuantityUnit;
@@ -59,6 +66,7 @@ public class ItemEditActivity extends AppCompatActivity {
         // Get references to EditText views
         itemNameEditText = (EditText) findViewById(R.id.item_name_edit_text);
         itemQuantityEditText = (EditText) findViewById(R.id.item_quantity_edit_text);
+        itemQuantityUnitRadioGroup = (RadioGroup) findViewById(R.id.quantity_units_flow_radio_group);
 
         // Get the intent
         Intent intent = getIntent();
@@ -76,7 +84,7 @@ public class ItemEditActivity extends AppCompatActivity {
 
             // Get reference to readable DB
             DbHelper dbHelper = new DbHelper(this);
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
 
             Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
                     null, // columns
@@ -97,7 +105,23 @@ public class ItemEditActivity extends AppCompatActivity {
                 // Put Name and Description into EditText views
                 itemNameEditText.setText(oldName);
                 itemQuantityEditText.setText(String.valueOf(oldQuantity));
-                // itemQuantityUnit ???
+
+                // get unit index in array
+                int unitId = Arrays.asList(getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(oldQuantityUnit);
+                // Get text that should be on the checked RadioButton
+                if (unitId != -1) {
+                    String unitTextLocal = getResources().getStringArray(R.array.quantity_units_array)[unitId];
+                    for (int i = 0; i < itemQuantityUnitRadioGroup.getChildCount(); i++) {
+                        View view = itemQuantityUnitRadioGroup.getChildAt(i);
+                        if (view instanceof RadioButton) {
+                            if (((RadioButton) view).getText().equals(unitTextLocal)) {
+                                ((RadioButton) view).setChecked(true);
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 cursor.close();
             }
             else {
@@ -115,8 +139,39 @@ public class ItemEditActivity extends AppCompatActivity {
     public void onClickSaveButton(View view) {
         // Get name and quantity from the EditText views and trim blank characters
         String name = itemNameEditText.getText().toString().trim();
-        double quantity = Long.valueOf(itemQuantityEditText.getText().toString());
-        String quantityUnit = "szt."; //TODO: zrobić pobieranie Unitu
+        // Get quantity, if empty, set zero
+        double quantity;
+//        if (itemQuantityEditText.getText().toString().isEmpty()) {
+//            quantity = 0;
+//        }
+//        else {
+//            quantity = Double.valueOf(itemQuantityEditText.getText().toString());
+//        }
+
+        try {
+            quantity = Double.parseDouble(itemQuantityEditText.getText().toString());
+        }
+        catch(NumberFormatException nfe) {
+            quantity = 0;
+        }
+
+        // Get value from units RadioGroup
+        int checkedRadioButtonId = itemQuantityUnitRadioGroup.getCheckedRadioButtonId();
+        String quantityUnit;
+        if (checkedRadioButtonId != -1) {
+            RadioButton checkedRadioButton = (RadioButton) findViewById(checkedRadioButtonId);
+            // Get string-array with localised units
+            String[] unitArray = getResources().getStringArray(R.array.quantity_units_array);
+            // get index of checked unit in array
+            int unitId = Arrays.asList(unitArray).indexOf(checkedRadioButton.getText());
+            // Get string-array with unit codes. Those with hash prefixes
+            String[] unitCodesArray = getResources().getStringArray(R.array.quantity_units_codes_array);
+            // Write coded unit (with hash prefix) to string
+            quantityUnit = unitCodesArray[unitId];
+//            Toast.makeText(ItemEditActivity.this, quantityUnit, Toast.LENGTH_SHORT).show();
+        }
+        else  // if not checked, select "pcs"
+            quantityUnit = getResources().getStringArray(R.array.quantity_units_codes_array)[0];
 
 
         if (name.length() < 3) {
@@ -146,13 +201,9 @@ public class ItemEditActivity extends AppCompatActivity {
             else if (!oldName.equals(name) || oldQuantity != quantity || !oldQuantityUnit.equals(quantityUnit)) {
                 int result = DbUtilities.updateItem(this,
                         itemId,
-                        itemIdCloud,
                         name,
                         quantity,
-                        quantityUnit,
-                        DbUtilities.getCurrentTime(),
-                        DbUtilities.getCurrentUserIdFromDB(this),
-                        DbUtilities.getCurrentUserIdCloud(this));
+                        quantityUnit);
                 if (result == 1) {
                     // 1 row updated, make a Toast and go back to MainActivity
                     Toast.makeText(ItemEditActivity.this, R.string.notify_item_updated, Toast.LENGTH_SHORT).show();
@@ -168,6 +219,11 @@ public class ItemEditActivity extends AppCompatActivity {
             startActivity(intent);
 
         }
+    }
+
+    public void onCheckboxClicked(View view) {
+        boolean checked = ((CheckBox) view).isChecked();
+
     }
 
 }

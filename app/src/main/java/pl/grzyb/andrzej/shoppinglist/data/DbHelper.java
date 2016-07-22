@@ -29,7 +29,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.ItemsEntry.COLUMN_ID_CLOUD   + " INTEGER, " +
                 DbContract.ItemsEntry.COLUMN_NAME       + " TEXT NOT NULL, " +
                 DbContract.ItemsEntry.COLUMN_QUANTITY   + " REAL NOT NULL, " +
-                DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT  + " TEXT NOT NULL, " +
+                DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT  + " TEXT, " +
                 DbContract.ItemsEntry.COLUMN_LIST_ID        + " INTEGER NOT NULL, " +
                 DbContract.ItemsEntry.COLUMN_LIST_ID_CLOUD  + " INTEGER NOT NULL, " +
                 DbContract.ItemsEntry.COLUMN_POSITION       + " INTEGER NOT NULL, " +

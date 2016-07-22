@@ -139,6 +139,7 @@ public class DbUtilities {
         long itemRowId;
         itemRowId = db.insert(DbContract.ItemsEntry.TABLE_NAME, null, contentValues);
 
+        // TODO: change modification date in the ShoppingList
         // Close DB
         db.close();
 
@@ -146,9 +147,8 @@ public class DbUtilities {
     }
 
     public static int updateItem(Context mContext,
-                                 long id, long idCloud, String name,
-                                 double quantity, String quantityUnit,
-                                 long modificationDate, long modifiedById, long modifiedByIdCloud) {
+                                 long id, String name,
+                                 double quantity, String quantityUnit) {
         // Get reference to writable DB
         DbHelper dbHelper = new DbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -157,13 +157,14 @@ public class DbUtilities {
         String[] whereArgs = new String[] {String.valueOf(id)};
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DbContract.ItemsEntry.COLUMN_ID_CLOUD, idCloud);
         contentValues.put(DbContract.ItemsEntry.COLUMN_NAME, name);
         contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY, quantity);
         contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, quantityUnit);
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, modificationDate);
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, modifiedById);
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, modifiedByIdCloud);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB(mContext));
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud(mContext));
+        // Uncheck item
+        contentValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, 0);
 
         int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
         // Close DB
@@ -171,6 +172,23 @@ public class DbUtilities {
         return result;
     }
 
+    public static int itemCheckBoxChange (Context mContext, long id, boolean checked) {
+        // Get reference to writable DB
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        // Form query
+        String where = DbContract.ItemsEntry._ID + "=?";
+        String[] whereArgs = new String[] {String.valueOf(id)};
+
+        ContentValues contentValues = new ContentValues();
+        int checkedInteger;
+        if (checked) checkedInteger = 1; else checkedInteger = 0;
+        contentValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, checkedInteger);
+
+        int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
+        db.close();
+        return result;
+    }
     public static boolean deleteItem(Context mContext, long id) {
         // Get reference to writable DB
         DbHelper dbHelper = new DbHelper(mContext);

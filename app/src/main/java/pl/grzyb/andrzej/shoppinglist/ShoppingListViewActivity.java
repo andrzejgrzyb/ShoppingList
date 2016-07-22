@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Arrays;
+
 import pl.grzyb.andrzej.shoppinglist.data.DbContract;
 import pl.grzyb.andrzej.shoppinglist.data.DbHelper;
 import pl.grzyb.andrzej.shoppinglist.data.DbUtilities;
@@ -30,7 +32,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     private SimpleCursorAdapter cursorAdapter = null;
     private SQLiteDatabase db;
     private ListView itemsListView;
-    private Cursor shoppingListCursor;
+    private Cursor shoppingListItemsCursor;
     private long shoppingListId;
 
 
@@ -66,7 +68,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         db = dbHelper.getReadableDatabase();
 
         // Query DB to get Cursor to Shopping List entry
-        shoppingListCursor = DbUtilities.getShoppingListCursor(db, shoppingListId);
+        Cursor shoppingListCursor = DbUtilities.getShoppingListCursor(db, shoppingListId);
         shoppingListCursor.moveToFirst();
 
         //Get Name and Description strings
@@ -84,6 +86,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         final long shoppingListIdCloud = shoppingListCursor.getLong(shoppingListCursor.getColumnIndex(
                 DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD));
 
+        shoppingListCursor.close();
         // populate Floating Action Button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -97,12 +100,12 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         });
 
         // Query DB to get Cursor to list of all Items of the Shopping List
-        shoppingListCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+        shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
 
         // Define SimpleCursorAdapter
         cursorAdapter = new SimpleCursorAdapter(this,
                 R.layout.listview_item_list,
-                this.shoppingListCursor,
+                this.shoppingListItemsCursor,
                 new String[]{DbContract.ItemsEntry.COLUMN_NAME, DbContract.ItemsEntry.COLUMN_QUANTITY,
                         DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, DbContract.ItemsEntry.COLUMN_CHECKED},
                 new int[]{R.id.itemNameTextView, R.id.itemQuantityTextView,
@@ -112,9 +115,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         // set the Adapter and OnClickListener
         itemsListView.setAdapter(cursorAdapter);
         cursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-
+            public boolean setViewValue(View view, final Cursor cursor, int columnIndex) {
                 if (columnIndex == cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY)) {
                     long quantity = cursor.getLong(columnIndex);
                     TextView textView = (TextView) view;
@@ -127,6 +128,24 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                         checkBox.setChecked(true);
                     }
                     checkBox.setText("");
+                    checkBox.setTag(cursor.getLong(cursor.getColumnIndex(DbContract.ItemsEntry._ID)));
+
+                    // Set listener to save changes when user clicks the checkbox
+                    checkBox.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            long itemId = (Long) v.getTag();
+                            DbUtilities.itemCheckBoxChange(getApplicationContext(), itemId, ((CheckBox) v).isChecked());
+                            Toast.makeText(getApplicationContext(), String.valueOf(itemId), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return true;
+                } else if (columnIndex == cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT)) {
+                    // Get index of coded unit (prefixed one, e.g. #kg)
+                    int unitId = Arrays.asList(getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(cursor.getString(columnIndex));
+                   if (unitId != -1) {
+                       ((TextView) view).setText(getResources().getStringArray(R.array.quantity_units_array)[unitId]);
+                   }
                     return true;
                 }
 
@@ -154,8 +173,8 @@ public class ShoppingListViewActivity extends AppCompatActivity {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
 
             // Get name of clicked Item
-            shoppingListCursor.moveToPosition(info.position);
-            String itemName = shoppingListCursor.getString(shoppingListCursor.getColumnIndexOrThrow(DbContract.ItemsEntry.COLUMN_NAME));
+            shoppingListItemsCursor.moveToPosition(info.position);
+            String itemName = shoppingListItemsCursor.getString(shoppingListItemsCursor.getColumnIndexOrThrow(DbContract.ItemsEntry.COLUMN_NAME));
             // Set the name as a Context Menu header
             menu.setHeaderTitle(itemName);
 
@@ -173,9 +192,9 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item) {
         // Move Cursor to the clicked Shopping List item in the ListView
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-        shoppingListCursor.moveToPosition(info.position);
+        shoppingListItemsCursor.moveToPosition(info.position);
         // Get the _ID of clicked ShoppingList
-        long itemId = shoppingListCursor.getInt(shoppingListCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
+        long itemId = shoppingListItemsCursor.getInt(shoppingListItemsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
         // Get clicked menu option's ID (Edit/Delete/Share)
         int menuItemIndex = item.getItemId();
 
@@ -203,6 +222,11 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(ShoppingListViewActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     public void onDestroy() {

@@ -66,7 +66,8 @@
                 android:id="@+id/item_quantity_edit_text"
                 android:hint="@string/hint_item_quantity"
                 android:minWidth="100dp"
-                android:gravity="center_horizontal" />
+                android:gravity="center_horizontal"
+                android:inputType="number" />
 
             <Button
                 style="?android:attr/buttonStyleSmall"
@@ -77,95 +78,91 @@
 
         </LinearLayout>
 
-        <!--<RadioGroup-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:id="@+id/quantity_units_radiogroup"-->
-            <!--android:clickable="false">-->
+        <pl.grzyb.andrzej.shoppinglist.FlowRadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:id="@+id/quantity_units_flow_radio_group"
+            android:checkedButton="@+id/quantity_unit_pcs_radio">
 
-            <!--<pl.grzyb.andrzej.shoppinglist.FlowLayout-->
-                <!--android:id="@+id/quantity_units_flowlayout"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content">-->
-                <pl.grzyb.andrzej.shoppinglist.FlowRadioGroup
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:orientation="horizontal"
-                    android:id="@+id/quantity_units_flowlayout">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_pcs"
+                android:id="@+id/quantity_unit_pcs_radio"
+                style="@style/QuantityUnitRadio"
+                />
 
-                <!--</RadioGroup>-->
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_pcs"
-                    android:id="@+id/quantity_unit_pcs_radio"
-                    style="@style/QuantityUnitRadio"
-                    />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_g"
+                android:id="@+id/quantity_unit_g_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_g"
-                    android:id="@+id/quantity_unit_g_radio"
-                    style="@style/QuantityUnitRadio" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_kg"
+                android:id="@+id/quantity_unit_kg_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_kg"
-                    android:id="@+id/quantity_unit_kg_radio"
-                    style="@style/QuantityUnitRadio" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_ml"
+                android:id="@+id/quantity_unit_ml_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_ml"
-                    android:id="@+id/quantity_unit_ml_radio"
-                    style="@style/QuantityUnitRadio" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_l"
+                android:id="@+id/quantity_unit_l_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_l"
-                    android:id="@+id/quantity_unit_l_radio"
-                    style="@style/QuantityUnitRadio" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_m"
+                android:id="@+id/quantity_unit_m_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_m"
-                    android:id="@+id/quantity_unit_m_radio"
-                    style="@style/QuantityUnitRadio" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_oz"
+                android:id="@+id/quantity_unit_oz_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_oz"
-                    android:id="@+id/quantity_unit_oz_radio"
-                    style="@style/QuantityUnitRadio" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_lb"
+                android:id="@+id/quantity_unit_lb_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_lb"
-                    android:id="@+id/quantity_unit_lb_radio"
-                    style="@style/QuantityUnitRadio" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_fl_oz"
+                android:id="@+id/quantity_unit_fl_oz_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_fl_oz"
-                    android:id="@+id/quantity_unit_fl_oz_radio"
-                    style="@style/QuantityUnitRadio" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_gal"
+                android:id="@+id/quantity_unit_gal_radio"
+                style="@style/QuantityUnitRadio" />
 
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_quantity_unit_gal"
-                    android:id="@+id/quantity_unit_gal_radio"
-                    style="@style/QuantityUnitRadio" />
-            <!--</pl.grzyb.andrzej.shoppinglist.FlowLayout>-->
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_quantity_unit_ft"
+                android:id="@+id/quantity_unit_ft_radio"
+                style="@style/QuantityUnitRadio" />
         </pl.grzyb.andrzej.shoppinglist.FlowRadioGroup>
 
         <Button

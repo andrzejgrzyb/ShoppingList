@@ -39,7 +39,8 @@
     <string name="title_activity_item_edit">Edit item</string>
     <string name="title_activity_item_add">Add item</string>
     <string name="text_quantity">Quantity</string>
-    <string name="radio_quantity_unit_pcs">pcs.</string>
+
+    <string name="radio_quantity_unit_pcs">pcs</string>
 
     <string name="radio_quantity_unit_l">l</string>
     <string name="radio_quantity_unit_ml">ml</string>
@@ -51,7 +52,39 @@
     <string name="radio_quantity_unit_gal">gal</string>
     <string name="radio_quantity_unit_oz">oz</string>
     <string name="radio_quantity_unit_lb">lb</string>
-    <string name="radio_quantity_unit_ft"></string>
+    <string name="radio_quantity_unit_ft">ft</string>
+
+    <string-array name="quantity_units_array">
+        <item>@string/radio_quantity_unit_pcs</item>
+
+        <item>@string/radio_quantity_unit_l</item>
+        <item>@string/radio_quantity_unit_ml</item>
+        <item>@string/radio_quantity_unit_g</item>
+        <item>@string/radio_quantity_unit_kg</item>
+        <item>@string/radio_quantity_unit_m</item>
+
+        <item>@string/radio_quantity_unit_fl_oz</item>
+        <item>@string/radio_quantity_unit_gal</item>
+        <item>@string/radio_quantity_unit_oz</item>
+        <item>@string/radio_quantity_unit_lb</item>
+        <item>@string/radio_quantity_unit_ft</item>
+    </string-array>
+
+    <string-array name="quantity_units_codes_array" translatable="false">
+        <item>#pcs</item>
+
+        <item>#l</item>
+        <item>#ml</item>
+        <item>#g</item>
+        <item>#kg</item>
+        <item>#m</item>
+
+        <item>#fl oz</item>
+        <item>#gal</item>
+        <item>#oz</item>
+        <item>#lb</item>
+        <item>#ft</item>
+    </string-array>
     <string name="description">Description</string>
     <string name="notify_item_added">Item added</string>
     <string name="notify_item_updated">Item updated</string>
