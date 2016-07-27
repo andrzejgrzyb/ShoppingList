@@ -88,6 +88,8 @@
     <string name="description">Description</string>
     <string name="notify_item_added">Item added</string>
     <string name="notify_item_updated">Item updated</string>
+    <string name="share">Share</string>
+    <string name="menu_clear_checked">Delete checked items</string>
 
 
 </resources>

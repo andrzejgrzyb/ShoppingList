@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -23,6 +24,7 @@ import java.util.Locale;
 import pl.grzyb.andrzej.shoppinglist.data.DbContract;
 import pl.grzyb.andrzej.shoppinglist.data.DbHelper;
 import pl.grzyb.andrzej.shoppinglist.data.DbUtilities;
+import pl.grzyb.andrzej.shoppinglist.data.RepeatListener;
 
 public class ItemEditActivity extends AppCompatActivity {
     public static final String EXTRA_SHOPPING_LIST_ID = "shoppingListId";
@@ -68,6 +70,42 @@ public class ItemEditActivity extends AppCompatActivity {
         itemQuantityEditText = (EditText) findViewById(R.id.item_quantity_edit_text);
         itemQuantityUnitRadioGroup = (RadioGroup) findViewById(R.id.quantity_units_flow_radio_group);
 
+        // Get references to + and - buttons
+        Button plusButton = (Button) findViewById(R.id.quantity_plus_button);
+        Button minusButton = (Button) findViewById(R.id.quantity_minus_button);
+
+        // Set touch listeners to plus/minus Buttons
+        plusButton.setOnTouchListener(new RepeatListener(400, 100, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                double quantity;
+                try {
+                    quantity = Double.parseDouble(itemQuantityEditText.getText().toString());
+                }
+                catch(NumberFormatException nfe) {
+                    quantity = 0;
+                }
+
+                itemQuantityEditText.setText(DbUtilities.formatQuantity(incrementQuantity(quantity)));
+//                Toast.makeText(getApplicationContext(), String.valueOf(interval), Toast.LENGTH_SHORT).show();
+            }
+        }));
+        minusButton.setOnTouchListener(new RepeatListener(400, 100, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                double quantity;
+                try {
+                    quantity = Double.parseDouble(itemQuantityEditText.getText().toString());
+                }
+                catch(NumberFormatException nfe) {
+                    quantity = 0;
+                }
+
+                itemQuantityEditText.setText(DbUtilities.formatQuantity(decrementQuantity(quantity)));
+            }
+        }));
+
+
         // Get the intent
         Intent intent = getIntent();
         // Check if it came with List ID and set the flag
@@ -104,7 +142,7 @@ public class ItemEditActivity extends AppCompatActivity {
 
                 // Put Name and Description into EditText views
                 itemNameEditText.setText(oldName);
-                itemQuantityEditText.setText(String.valueOf(oldQuantity));
+                itemQuantityEditText.setText(DbUtilities.formatQuantity(oldQuantity));
 
                 // get unit index in array
                 int unitId = Arrays.asList(getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(oldQuantityUnit);
@@ -131,7 +169,7 @@ public class ItemEditActivity extends AppCompatActivity {
             db.close();
         }
         else {
-            // We're adding a brand new Shopping List
+            // We're adding a brand new Item
             setTitle(R.string.title_activity_item_add);
         }
     }
@@ -141,13 +179,6 @@ public class ItemEditActivity extends AppCompatActivity {
         String name = itemNameEditText.getText().toString().trim();
         // Get quantity, if empty, set zero
         double quantity;
-//        if (itemQuantityEditText.getText().toString().isEmpty()) {
-//            quantity = 0;
-//        }
-//        else {
-//            quantity = Double.valueOf(itemQuantityEditText.getText().toString());
-//        }
-
         try {
             quantity = Double.parseDouble(itemQuantityEditText.getText().toString());
         }
@@ -220,10 +251,43 @@ public class ItemEditActivity extends AppCompatActivity {
 
         }
     }
-
-    public void onCheckboxClicked(View view) {
-        boolean checked = ((CheckBox) view).isChecked();
-
+    // static methods to increment and decrement quantity in EditTextView by clicking + and -
+    // with defined intervals
+    public static double incrementQuantity(double quantity) {
+        if (quantity < 0) {
+            return 0;
+        }
+        else if (quantity < 20) {
+            return Math.floor(quantity) + 1;
+        }
+        else if (quantity < 50) {
+            return Math.floor(quantity/5) *5 + 5;
+        }
+        else if (quantity < 100) {
+            return Math.floor(quantity/10) *10 + 10;
+        }
+        else {
+            return Math.floor(quantity/100) *100 + 100;
+        }
     }
+    public static double decrementQuantity(double quantity) {
+        if (quantity <= 0) {
+            return 0;
+        }
+        else if (quantity <= 20) {
+            return Math.ceil(quantity) - 1;
+        }
+        else if (quantity <= 50) {
+            return Math.ceil(quantity/5) *5 - 5;
+        }
+        else if (quantity <= 100) {
+            return Math.ceil(quantity/10) *10 - 10;
+        }
+        else {
+            return Math.ceil(quantity/100) *100 - 100;
+        }
+    }
+
+
 
 }

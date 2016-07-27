@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ShoppingListViewActivity">
+    <item
+        android:id="@+id/menu_item_share"
+        android:icon="@drawable/ic_menu_share"
+        app:showAsAction="always"
+        android:title="@string/share"
+        app:actionProviderClass=
+            "android.support.v7.widget.ShareActionProvider" />
+    <item
+        android:id="@+id/menu_item_clear_checked"
+        android:orderInCategory="100"
+        android:title="@string/menu_clear_checked"
+        app:showAsAction="never" />
+</menu>

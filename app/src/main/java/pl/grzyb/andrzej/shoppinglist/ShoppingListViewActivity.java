@@ -4,11 +4,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -34,6 +35,8 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     private ListView itemsListView;
     private Cursor shoppingListItemsCursor;
     private long shoppingListId;
+    private ShareActionProvider mShareActionProvider;
+    private String mShareString;
 
 
     @Override
@@ -117,16 +120,16 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         cursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             public boolean setViewValue(View view, final Cursor cursor, int columnIndex) {
                 if (columnIndex == cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY)) {
-                    long quantity = cursor.getLong(columnIndex);
+                    double quantity = cursor.getDouble(columnIndex);
                     TextView textView = (TextView) view;
-                    textView.setText(Long.toString(quantity));
+                    textView.setText(DbUtilities.formatQuantity((quantity)));
                     return true;
                 } else if (columnIndex == cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_CHECKED)) {
                     int checked = cursor.getInt(columnIndex);
                     CheckBox checkBox = (CheckBox) view;
                     if (checked == 1) {
                         checkBox.setChecked(true);
-                    }
+                    } else checkBox.setChecked(false);
                     checkBox.setText("");
                     checkBox.setTag(cursor.getLong(cursor.getColumnIndex(DbContract.ItemsEntry._ID)));
 
@@ -142,13 +145,10 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                     return true;
                 } else if (columnIndex == cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT)) {
                     // Get index of coded unit (prefixed one, e.g. #kg)
-                    int unitId = Arrays.asList(getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(cursor.getString(columnIndex));
-                   if (unitId != -1) {
-                       ((TextView) view).setText(getResources().getStringArray(R.array.quantity_units_array)[unitId]);
-                   }
+                    ((TextView) view).setText(getLocalisedQuantitUnit(cursor.getString(columnIndex)));
+
                     return true;
                 }
-
                 return false;
             }
         });
@@ -163,6 +163,34 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         // Add Context Menu to ListView
         this.registerForContextMenu(itemsListView);
 
+        // Create share button String
+        mShareString = createShareString(cursorAdapter.getCursor());
+    }
+
+    public String getLocalisedQuantitUnit(String quantityUnit) {
+        int unitId = Arrays.asList(getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(quantityUnit);
+        if (unitId != -1)
+          return getResources().getStringArray(R.array.quantity_units_array)[unitId];
+        else return "";
+    }
+
+    private String createShareString(Cursor cursor) {
+        StringBuilder shareString = new StringBuilder();
+        if (cursor.moveToFirst()) {
+            shareString.append(getTitle());
+            shareString.append("\n");
+            shareString.append(((TextView) findViewById(R.id.shopping_list_description_text_view)).getText());
+            do {
+                shareString.append("\n");
+                shareString.append(cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_NAME)));
+                shareString.append(" ");
+                shareString.append(DbUtilities.formatQuantity(
+                        cursor.getDouble(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY))));
+                shareString.append(getLocalisedQuantitUnit(
+                        cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT))));
+            } while (cursor.moveToNext());
+        }
+        return shareString.toString();
     }
 
     @Override
@@ -209,7 +237,8 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                 break;
             case 1: // Delete
                 DbUtilities.deleteItem(this, itemId);
-                cursorAdapter.swapCursor(DbUtilities.getShoppingListItemsCursor(db, shoppingListId));
+                shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+                cursorAdapter.swapCursor(shoppingListItemsCursor).close();
                 break;
 //            case 2: // Share
 //                Toast.makeText(this, getResources().getStringArray(R.array.context_menu_main_activity)[menuItemIndex], Toast.LENGTH_SHORT);
@@ -221,6 +250,59 @@ public class ShoppingListViewActivity extends AppCompatActivity {
 
         return true;
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate menu resource file.
+        getMenuInflater().inflate(R.menu.menu_shopping_list_view, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+
+        // Fetch and store ShareActionProvider
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(createShareIntent());
+        }
+        // Return true to display menu
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_clear_checked:
+                DbUtilities.deleteCheckedItems(this, shoppingListId);
+                shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+                cursorAdapter.changeCursor(shoppingListItemsCursor);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+
+    public Intent createShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT,
+                mShareString);
+        return shareIntent;
+    }
+
+    // Call to update the share intent
+    private void setShareIntent(Intent shareIntent) {
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
+    }
+
 
     @Override
     public void onBackPressed() {

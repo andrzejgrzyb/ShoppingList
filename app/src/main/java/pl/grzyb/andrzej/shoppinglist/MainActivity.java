@@ -115,9 +115,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                cursor.moveToPosition(position);
-                String shoppingListName = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
-                long shoppingListId = cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
+//                cursor.moveToPosition(position);
+                Cursor clickCursor = (Cursor) parent.getItemAtPosition(position);
+                String shoppingListName = clickCursor.getString(clickCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
+                long shoppingListId = clickCursor.getInt(clickCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
 
                 // make a Toast with the clicked item description (just to test it)
                 Toast toast = Toast.makeText(getApplicationContext(), shoppingListName, Toast.LENGTH_SHORT);
@@ -181,7 +182,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case 1: // Delete
                 DbUtilities.deleteShoppingList(this, shoppingListId);
-                cursorAdapter.swapCursor(DbUtilities.getAllShoppingLists(db));
+                cursorAdapter.swapCursor(DbUtilities.getAllShoppingLists(db)).close();
                 break;
             case 2: // Share
                 Toast.makeText(this, getResources().getStringArray(R.array.context_menu_main_activity)[menuItemIndex], Toast.LENGTH_SHORT);

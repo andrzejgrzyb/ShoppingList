@@ -4,10 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import java.math.RoundingMode;
 import java.text.DateFormat;
 
 import android.text.format.DateUtils;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 
 import pl.grzyb.andrzej.shoppinglist.R;
@@ -95,9 +98,9 @@ public class DbUtilities {
         String[] whereArgs = new String[] {String.valueOf(id)};
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, idCloud);
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, name);
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, description);
+        if (idCloud != -1)contentValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, idCloud);
+        if (name != null) contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, name);
+        if (description != null) contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, description);
 //        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID, ownerId);
 //        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, ownerIdCloud);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, modificationDate);
@@ -138,10 +141,11 @@ public class DbUtilities {
         // Insert ContentValues into the table and get row id back
         long itemRowId;
         itemRowId = db.insert(DbContract.ItemsEntry.TABLE_NAME, null, contentValues);
-
-        // TODO: change modification date in the ShoppingList
         // Close DB
         db.close();
+
+        // Add info about the modification to the Shopping List, new date and user id
+        updateShoppingList(mContext, listId, -1, null, null, getCurrentTime(), getCurrentUserIdFromDB(mContext), getCurrentUserIdCloud(mContext));
 
         return itemRowId;
     }
@@ -168,6 +172,38 @@ public class DbUtilities {
 
         int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
         // Close DB
+        db.close();
+
+        // add info about the modification to the Shopping List, new date and user id
+        updateShoppingList(mContext, getShoppingListIdBasedOnItemId(mContext, id), -1, null, null,
+                getCurrentTime(), getCurrentUserIdFromDB(mContext), getCurrentUserIdCloud(mContext));
+
+        return result;
+    }
+    // Returns Shopping List ID of a given Item based on ItemID
+    public static long getShoppingListIdBasedOnItemId(Context mContext, long itemId) {
+        // Get reference to writable DB
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // Form query
+        String where = DbContract.ItemsEntry._ID + "=?";
+        String[] whereArgs = new String[] {String.valueOf(itemId)};
+
+        Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
+                new String[] {DbContract.ItemsEntry.COLUMN_LIST_ID},
+                where,
+                whereArgs,
+                null,
+                null,
+                null);
+
+        long result;
+        if (cursor.moveToFirst()) {
+            result = cursor.getLong(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_LIST_ID));
+        }
+        else result = -1;
+        cursor.close();
         db.close();
         return result;
     }
@@ -252,10 +288,10 @@ public class DbUtilities {
         return System.currentTimeMillis();
     }
 
+    //
     public static String formatDate(Context applicationContext, long milliesSinceEpoch) {
         long currentMilliesSinceEpoch = System.currentTimeMillis();
         Date inputDate = new Date(milliesSinceEpoch);
-//return String.valueOf(dateInMillies);
         long difference = currentMilliesSinceEpoch - milliesSinceEpoch;
         if (difference < 60*1000) {
             return applicationContext.getResources().getString(R.string.text_less_than_minute_ago);
@@ -263,9 +299,33 @@ public class DbUtilities {
         else if (difference < 60*60*24*7 * 1000) {
             String output = DateUtils.getRelativeTimeSpanString (milliesSinceEpoch, currentMilliesSinceEpoch, 0).toString();
             return output;
-            //TODO: fix the issue that adapter doesn't update when time passes
         } else {
             return DateFormat.getDateInstance().format(inputDate);
         }
+    }
+
+    public static String formatQuantity(double quantity) {
+       /*  return a String with formatted quantity
+        * no decimal point if quantity is an integer
+        * add decimal point if quantity is double */
+
+        DecimalFormat df = new DecimalFormat("#.###");
+        df.setRoundingMode(RoundingMode.HALF_UP);
+        return df.format(quantity);
+    }
+
+    public static boolean deleteCheckedItems(Context mContext, long shoppingListId) {
+        // Get reference to writable DB
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String whereClause = DbContract.ItemsEntry.COLUMN_LIST_ID + "=? AND "
+                            + DbContract.ItemsEntry.COLUMN_CHECKED + "=?";
+        String[] whereArgs = new String[]{String.valueOf(shoppingListId), "1"};
+        // if number of rows affected > 0 -> result = true
+        boolean result =
+                db.delete(DbContract.ItemsEntry.TABLE_NAME, whereClause, whereArgs) > 0;
+        db.close();
+        return result;
     }
 }
