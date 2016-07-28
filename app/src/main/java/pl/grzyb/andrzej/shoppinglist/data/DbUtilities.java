@@ -2,6 +2,8 @@ package pl.grzyb.andrzej.shoppinglist.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -10,8 +12,10 @@ import java.text.DateFormat;
 
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import pl.grzyb.andrzej.shoppinglist.R;
@@ -46,7 +50,7 @@ public class DbUtilities {
 
     public static Cursor getAllShoppingLists(SQLiteDatabase db) {
         Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
-                new String[]{DbContract.ShoppingListsEntry._ID, DbContract.ShoppingListsEntry.COLUMN_NAME, DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE},
+                null,
                 null,
                 null,
                 null,
@@ -402,4 +406,40 @@ public class DbUtilities {
         int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
         return result;
     }
+
+    public static Intent createShareIntent(String shareString) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT,
+                shareString);
+        return shareIntent;
+    }
+
+    public static String createShareString(Context mContext, Cursor cursor, String name, String description) {
+        StringBuilder shareString = new StringBuilder();
+        if (cursor.moveToFirst()) {
+            shareString.append(name);
+            shareString.append("\n");
+            shareString.append(description);
+            do {
+                shareString.append("\n");
+                shareString.append(cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_NAME)));
+                shareString.append(" ");
+                shareString.append(DbUtilities.formatQuantity(
+                        cursor.getDouble(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY))));
+                shareString.append(getLocalisedQuantitUnit(mContext,
+                        cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT))));
+            } while (cursor.moveToNext());
+        }
+        return shareString.toString();
+    }
+    public static String getLocalisedQuantitUnit(Context mContext, String quantityUnit) {
+        int unitId = Arrays.asList(mContext.getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(quantityUnit);
+        if (unitId != -1)
+            return mContext.getResources().getStringArray(R.array.quantity_units_array)[unitId];
+        else return "";
+
+    }
+
 }

@@ -36,7 +36,6 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     private Cursor shoppingListItemsCursor;
     private long shoppingListId;
     private ShareActionProvider mShareActionProvider;
-    private String mShareString;
 
 
     @Override
@@ -168,7 +167,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                     return true;
                 } else if (columnIndex == cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT)) {
                     // Get index of coded unit (prefixed one, e.g. #kg)
-                    ((TextView) view).setText(getLocalisedQuantitUnit(cursor.getString(columnIndex)));
+                    ((TextView) view).setText(DbUtilities.getLocalisedQuantitUnit(getApplicationContext(), cursor.getString(columnIndex)));
 
                     return true;
                 }
@@ -186,35 +185,10 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         // Add Context Menu to ListView
         this.registerForContextMenu(itemsListView);
 
-        // Create share button String
-        mShareString = createShareString(cursorAdapter.getCursor());
+
     }
 
-    public String getLocalisedQuantitUnit(String quantityUnit) {
-        int unitId = Arrays.asList(getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(quantityUnit);
-        if (unitId != -1)
-          return getResources().getStringArray(R.array.quantity_units_array)[unitId];
-        else return "";
-    }
 
-    private String createShareString(Cursor cursor) {
-        StringBuilder shareString = new StringBuilder();
-        if (cursor.moveToFirst()) {
-            shareString.append(getTitle());
-            shareString.append("\n");
-            shareString.append(((TextView) findViewById(R.id.shopping_list_description_text_view)).getText());
-            do {
-                shareString.append("\n");
-                shareString.append(cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_NAME)));
-                shareString.append(" ");
-                shareString.append(DbUtilities.formatQuantity(
-                        cursor.getDouble(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY))));
-                shareString.append(getLocalisedQuantitUnit(
-                        cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT))));
-            } while (cursor.moveToNext());
-        }
-        return shareString.toString();
-    }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
@@ -279,6 +253,10 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         // Inflate menu resource file.
         getMenuInflater().inflate(R.menu.menu_shopping_list_view, menu);
 
+        // Create share button String
+        String description = ((TextView) findViewById(R.id.shopping_list_description_text_view)).getText().toString();
+        String shareString = DbUtilities.createShareString(this, cursorAdapter.getCursor(), getTitle().toString(), description);
+
         // Locate MenuItem with ShareActionProvider
         MenuItem item = menu.findItem(R.id.menu_item_share);
 
@@ -286,7 +264,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
 
         if (mShareActionProvider != null) {
-            mShareActionProvider.setShareIntent(createShareIntent());
+            mShareActionProvider.setShareIntent(DbUtilities.createShareIntent(shareString));
         }
         // Return true to display menu
         return true;
@@ -310,14 +288,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     }
 
 
-    public Intent createShareIntent() {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT,
-                mShareString);
-        return shareIntent;
-    }
+
 
     // Call to update the share intent
     private void setShareIntent(Intent shareIntent) {

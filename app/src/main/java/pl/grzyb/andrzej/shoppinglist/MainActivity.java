@@ -164,15 +164,14 @@ public class MainActivity extends AppCompatActivity
     public boolean onContextItemSelected(MenuItem item) {
         // Move Cursor to the clicked Shopping List item in the ListView
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-        final Cursor cursor = DbUtilities.getAllShoppingLists(db);
-        cursor.moveToPosition(info.position);
+        final Cursor shoppingListsCursor = DbUtilities.getAllShoppingLists(db);
+        shoppingListsCursor.moveToPosition(info.position);
         // Get the _ID of clicked ShoppingList
-        long shoppingListId = cursor.getInt(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
+        long shoppingListId = shoppingListsCursor.getInt(shoppingListsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
         // Get clicked menu option's ID (Edit/Delete/Share)
         int menuItemIndex = item.getItemId();
 
-        // Close cursor
-        cursor.close();
+
 
         switch (menuItemIndex) {
             case 0: // Edit
@@ -185,13 +184,25 @@ public class MainActivity extends AppCompatActivity
                 cursorAdapter.swapCursor(DbUtilities.getAllShoppingLists(db)).close();
                 break;
             case 2: // Share
-                Toast.makeText(this, getResources().getStringArray(R.array.context_menu_main_activity)[menuItemIndex], Toast.LENGTH_SHORT);
+                // Get cursor to items of chosen shopping list
+                Cursor itemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+                // Get shopping list's name and description
+                String name =        shoppingListsCursor.getString(shoppingListsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
+                String description = shoppingListsCursor.getString(shoppingListsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION));
+                // Create a share string to be sent
+                String shareString = DbUtilities.createShareString(this, itemsCursor, name, description);
+                // Close the cursor
+                itemsCursor.close();
+                // Start the Activity
+                startActivity(DbUtilities.createShareIntent(shareString));
+                Toast.makeText(this, getResources().getStringArray(R.array.context_menu_main_activity)[menuItemIndex], Toast.LENGTH_SHORT).show();
                 break;
             default:
                 Toast.makeText(this, "WTF?!", Toast.LENGTH_SHORT);
                 break;
         }
-
+        // Close cursor
+        shoppingListsCursor.close();
         return true;
     }
 

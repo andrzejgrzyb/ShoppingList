@@ -24,10 +24,12 @@
         <activity
             android:name=".ShoppingListEditActivity"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateVisible"
             android:noHistory="true"></activity>
         <activity
             android:name=".ItemEditActivity"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateVisible"
             android:noHistory="true"></activity>
     </application>
 
