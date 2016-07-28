@@ -218,12 +218,7 @@ public class ItemEditActivity extends AppCompatActivity {
                         quantity,
                         quantityUnit,
                         shoppingListId,
-                        shoppingListIdCloud,
-                        0,  // checked
-                        0,  // position
-                        DbUtilities.getCurrentTime(),
-                        DbUtilities.getCurrentUserIdFromDB(this),
-                        DbUtilities.getCurrentUserIdCloud(this));
+                        shoppingListIdCloud);
                 if (rowId != -1) {
                     // Got a rowId back -> row added to DB, make a Toast and go back to MainActivity
                     Toast.makeText(ItemEditActivity.this, R.string.notify_item_added, Toast.LENGTH_SHORT).show();

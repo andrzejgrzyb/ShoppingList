@@ -5,24 +5,24 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Arrays;
 
+import pl.grzyb.andrzej.shoppinglist.DragNDropList.DragNDropCursorAdapter;
+import pl.grzyb.andrzej.shoppinglist.DragNDropList.DragNDropListView;
 import pl.grzyb.andrzej.shoppinglist.data.DbContract;
 import pl.grzyb.andrzej.shoppinglist.data.DbHelper;
 import pl.grzyb.andrzej.shoppinglist.data.DbUtilities;
@@ -30,9 +30,9 @@ import pl.grzyb.andrzej.shoppinglist.data.DbUtilities;
 public class ShoppingListViewActivity extends AppCompatActivity {
 
     public static final String EXTRA_SHOPPING_LIST_ID = "shoppingListId";
-    private SimpleCursorAdapter cursorAdapter = null;
+    private DragNDropCursorAdapter cursorAdapter = null;
     private SQLiteDatabase db;
-    private ListView itemsListView;
+    private DragNDropListView itemsListView;
     private Cursor shoppingListItemsCursor;
     private long shoppingListId;
     private ShareActionProvider mShareActionProvider;
@@ -64,14 +64,14 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         shoppingListId = getIntent().getLongExtra(EXTRA_SHOPPING_LIST_ID, 0);
 
         // Get reference to the ListView
-        itemsListView = (ListView) findViewById(R.id.item_list_view);
+        itemsListView = (DragNDropListView) findViewById(R.id.item_list_view);
 
         // Get reference to readable DB
         DbHelper dbHelper = new DbHelper(this);
         db = dbHelper.getReadableDatabase();
 
         // Query DB to get Cursor to Shopping List entry
-        Cursor shoppingListCursor = DbUtilities.getShoppingListCursor(db, shoppingListId);
+        final Cursor shoppingListCursor = DbUtilities.getShoppingListCursor(db, shoppingListId);
         shoppingListCursor.moveToFirst();
 
         //Get Name and Description strings
@@ -106,18 +106,41 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
 
         // Define SimpleCursorAdapter
-        cursorAdapter = new SimpleCursorAdapter(this,
+        cursorAdapter = new DragNDropCursorAdapter(this,
                 R.layout.listview_item_list,
                 this.shoppingListItemsCursor,
                 new String[]{DbContract.ItemsEntry.COLUMN_NAME, DbContract.ItemsEntry.COLUMN_QUANTITY,
                         DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, DbContract.ItemsEntry.COLUMN_CHECKED},
                 new int[]{R.id.itemNameTextView, R.id.itemQuantityTextView,
                         R.id.itemQuantityUnitTextView, R.id.itemCheckedCheckBox},
-                0);
+                R.id.handler);
 
         // set the Adapter and OnClickListener
-        itemsListView.setAdapter(cursorAdapter);
-        cursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+        itemsListView.setDragNDropAdapter(cursorAdapter);
+        // set drag n drop listener
+        itemsListView.setOnItemDragNDropListener(new DragNDropListView.OnItemDragNDropListener() {
+            @Override
+            // Called when the item begins dragging.
+            public void onItemDrag(DragNDropListView parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            // Called after the item is dropped in different place (actually moved)
+            //
+            public void onItemDrop(DragNDropListView parent, View view, int startPosition, int endPosition, long id) {
+                // First, get cursor from adapter
+                Cursor cursor = (Cursor) itemsListView.getAdapter().getItem(startPosition);
+                DbUtilities.changeItemPosition(getApplicationContext(), cursor, id, startPosition, endPosition);
+
+                shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+                cursorAdapter.swapCursor(shoppingListItemsCursor).close();
+
+                Log.d("MOVE", String.valueOf(id) + ": " +
+                        String.valueOf(startPosition) + " -> " + String.valueOf(endPosition));
+            }
+        });
+        cursorAdapter.setViewBinder(new DragNDropCursorAdapter.ViewBinder() {
             public boolean setViewValue(View view, final Cursor cursor, int columnIndex) {
                 if (columnIndex == cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY)) {
                     double quantity = cursor.getDouble(columnIndex);
@@ -139,7 +162,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             long itemId = (Long) v.getTag();
                             DbUtilities.itemCheckBoxChange(getApplicationContext(), itemId, ((CheckBox) v).isChecked());
-                            Toast.makeText(getApplicationContext(), String.valueOf(itemId), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getApplicationContext(), String.valueOf(itemId), Toast.LENGTH_SHORT).show();
                         }
                     });
                     return true;
@@ -153,12 +176,12 @@ public class ShoppingListViewActivity extends AppCompatActivity {
             }
         });
 
-        itemsListView.setOnItemClickListener(new ListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(), "click", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        itemsListView.setOnItemClickListener(new ListView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Toast.makeText(getApplicationContext(), "click", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
         // Add Context Menu to ListView
         this.registerForContextMenu(itemsListView);

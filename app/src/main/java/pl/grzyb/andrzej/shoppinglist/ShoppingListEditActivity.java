@@ -106,13 +106,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
                 long rowId = DbUtilities.insertShoppingList(this,
                         0,                  // don't know IdCloud yet, this should be updated by the sync class
                         name,
-                        description,
-                        DbUtilities.getCurrentUserIdFromDB(this),
-                        DbUtilities.getCurrentUserIdCloud(this),
-                        DbUtilities.getCurrentTime(),
-                        DbUtilities.getCurrentUserIdFromDB(this),
-                        DbUtilities.getCurrentUserIdCloud(this),
-                        0);
+                        description);
                 if (rowId != -1) {
                     // Got a rowId back -> row added to DB, make a Toast and go back to MainActivity
                     Toast.makeText(ShoppingListEditActivity.this, R.string.notify_shopping_list_added, Toast.LENGTH_SHORT).show();
@@ -123,10 +117,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
                         shoppingListId,
                         0,
                         name,
-                        description,
-                        DbUtilities.getCurrentTime(),
-                        DbUtilities.getCurrentUserIdFromDB(this),
-                        DbUtilities.getCurrentUserIdCloud(this));
+                        description);
                 if (result == 1) {
                     // 1 row updated, make a Toast and go back to MainActivity
                     Toast.makeText(ShoppingListEditActivity.this, R.string.notify_shopping_list_updated, Toast.LENGTH_SHORT).show();

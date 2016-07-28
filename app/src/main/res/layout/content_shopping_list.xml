@@ -20,7 +20,7 @@
         android:id="@+id/shopping_list_description_text_view"/>
 
 
-    <ListView
+    <pl.grzyb.andrzej.shoppinglist.DragNDropList.DragNDropListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/item_list_view"
