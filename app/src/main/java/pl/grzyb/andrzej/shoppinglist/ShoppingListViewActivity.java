@@ -1,10 +1,12 @@
 package pl.grzyb.andrzej.shoppinglist;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
@@ -19,7 +21,6 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Arrays;
 
 import pl.grzyb.andrzej.shoppinglist.DragNDropList.DragNDropCursorAdapter;
 import pl.grzyb.andrzej.shoppinglist.DragNDropList.DragNDropListView;
@@ -175,17 +176,8 @@ public class ShoppingListViewActivity extends AppCompatActivity {
             }
         });
 
-//        itemsListView.setOnItemClickListener(new ListView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Toast.makeText(getApplicationContext(), "click", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
         // Add Context Menu to ListView
         this.registerForContextMenu(itemsListView);
-
-
     }
 
 
@@ -203,13 +195,8 @@ public class ShoppingListViewActivity extends AppCompatActivity {
             // Set the name as a Context Menu header
             menu.setHeaderTitle(itemName);
 
-            // Show menu options
-            String[] menuItems = getResources().getStringArray(R.array.context_menu_shopping_list_view_activity);
-            for (int i = 0; i<menuItems.length; i++) {
-                menu.add(Menu.NONE, i, i, menuItems[i]);
-            }
-            // Close shoppingListCursor
-//            shoppingListCursor.close();
+            // Inflate menu
+            getMenuInflater().inflate(R.menu.context_menu_shopping_list_view, menu);
         }
     }
 
@@ -219,27 +206,55 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
         shoppingListItemsCursor.moveToPosition(info.position);
         // Get the _ID of clicked ShoppingList
-        long itemId = shoppingListItemsCursor.getInt(shoppingListItemsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
+        final long itemId = shoppingListItemsCursor.getInt(shoppingListItemsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
         // Get clicked menu option's ID (Edit/Delete/Share)
         int menuItemIndex = item.getItemId();
 
-        // Close shoppingListCursor
-//        shoppingListCursor.close();
-
         switch (menuItemIndex) {
-            case 0: // Edit
+            case R.id.edit: // Edit
                 Intent intent = new Intent(ShoppingListViewActivity.this, ItemEditActivity.class);
                 intent.putExtra(ItemEditActivity.EXTRA_ITEM_ID, itemId);
                 startActivity(intent);
                 break;
-            case 1: // Delete
-                DbUtilities.deleteItem(this, itemId);
-                shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
-                cursorAdapter.swapCursor(shoppingListItemsCursor).close();
+            case R.id.move: // Move to another list
+                // Instantiate an AlertDialog.Builder with its constructor
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                //  Chain together various setter methods to set the dialog characteristics
+                builder.setTitle(R.string.move_to_another_list);
+                // Get current shopping list ID to not include it on the "move to..." list
+                long currentShoppingListId = DbUtilities.getShoppingListIdBasedOnItemId(db, itemId);
+                // Get a cursor with all lists
+                final Cursor allShoppingListsCursor = DbUtilities.getAllShoppingListsExceptOf(db, currentShoppingListId);
+
+                // Set cursor to the dialog builder, onClickListener and column name to be shown in the dialog as list
+                builder.setCursor(allShoppingListsCursor, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Get clicked shopping list ID
+                        allShoppingListsCursor.moveToPosition(which);
+                        long newShoppingListId = allShoppingListsCursor.getLong(allShoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry._ID));
+                        // Call a static method to move item to chosen shopping list
+                        int result = DbUtilities.moveItemToAnotherShoppingList(getApplicationContext(), itemId, newShoppingListId);
+                        if (result > 0) {
+                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.moved_to) + " " +
+                                            allShoppingListsCursor.getString(allShoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_NAME)),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        refreshListView();
+                    }
+                },
+                        DbContract.ShoppingListsEntry.COLUMN_NAME
+                );
+
+                //  Get the AlertDialog from create() and show it
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
                 break;
-//            case 2: // Share
-//                Toast.makeText(this, getResources().getStringArray(R.array.context_menu_main_activity)[menuItemIndex], Toast.LENGTH_SHORT);
-//                break;
+            case R.id.delete: // Delete
+                DbUtilities.deleteItem(this, itemId);
+                refreshListView();
+                break;
             default:
                 Toast.makeText(this, "WTF?!", Toast.LENGTH_SHORT);
                 break;
@@ -275,8 +290,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_item_clear_checked:
                 DbUtilities.deleteCheckedItems(this, shoppingListId);
-                shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
-                cursorAdapter.changeCursor(shoppingListItemsCursor);
+                refreshListView();
                 return true;
 
             default:
@@ -307,7 +321,8 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Close database
+        // Close cursor and database
+        shoppingListItemsCursor.close();
         db.close();
 
     }
@@ -318,6 +333,9 @@ public class ShoppingListViewActivity extends AppCompatActivity {
 //        cursorAdapter.notifyDataSetChanged();
     }
 
-
+    public void refreshListView() {
+        shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+        cursorAdapter.swapCursor(shoppingListItemsCursor).close();
+    }
 
 }

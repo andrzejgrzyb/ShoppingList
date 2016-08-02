@@ -61,6 +61,18 @@ public class DbUtilities {
         return cursor;
     }
 
+    public static Cursor getAllShoppingListsExceptOf(SQLiteDatabase db, long excludedId) {
+        Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
+                new String[] {DbContract.ShoppingListsEntry._ID, DbContract.ShoppingListsEntry.COLUMN_NAME},
+                DbContract.ShoppingListsEntry._ID + "!=?",
+                new String[] {String.valueOf(excludedId)},
+                null,
+                null,
+                DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE + " DESC");
+
+        return cursor;
+    }
+
     public static long insertShoppingList(Context mContext,
                                           long idCloud, String name, String description) {
 
@@ -405,6 +417,57 @@ public class DbUtilities {
 
         int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
         return result;
+    }
+
+    public static int moveItemToAnotherShoppingList(Context mContext, long itemId, long newShoppingListId) {
+        // Get reference to writable DB
+        DbHelper dbHelper = new DbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        long oldShoppingListId = getShoppingListIdBasedOnItemId(db, itemId);
+        long newShoppingListIdCloud = getShoppingListIdCloud(db, newShoppingListId);
+
+        // Form query
+        String where = DbContract.ItemsEntry._ID + "=?";
+        String[] whereArgs = new String[]{String.valueOf(itemId)};
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, getShoppingListItemsCount(db, newShoppingListId));
+        contentValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID, newShoppingListId);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID_CLOUD, newShoppingListIdCloud);
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB(db));
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud(db));
+
+        int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
+
+        // add info about the modification to Shopping Lists, new date and user id
+        updateShoppingList(mContext, oldShoppingListId, -1, null, null);
+        updateShoppingList(mContext, newShoppingListId, -1, null, null);
+        // Close DB
+        db.close();
+
+        return result;
+    }
+
+    public static long getShoppingListIdCloud(SQLiteDatabase db, long shoppingListId) {
+        // Form query
+        String where = DbContract.ShoppingListsEntry._ID + "=?";
+        String[] whereArgs = new String[]{String.valueOf(shoppingListId)};
+
+        Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
+                new String[]{DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD},
+                where,
+                whereArgs,
+                null,
+                null,
+                null);
+        long idCloud = 0;
+        if (cursor.moveToFirst()) {
+            idCloud = cursor.getLong(cursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD));
+        }
+        cursor.close();
+        return idCloud;
     }
 
     public static Intent createShareIntent(String shareString) {

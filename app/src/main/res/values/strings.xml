@@ -28,10 +28,7 @@
         <item>Delete</item>
         <item>Share</item>
     </string-array>
-    <string-array name="context_menu_shopping_list_view_activity">
-        <item>Edit</item>
-        <item>Delete</item>
-    </string-array>
+
 
 
     <string name="hint_item_name">Item name</string>
@@ -90,6 +87,12 @@
     <string name="notify_item_updated">Item updated</string>
     <string name="share">Share</string>
     <string name="menu_clear_checked">Delete checked items</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="move_to_another_list">Move to another list</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="moved_to">Moved to</string>
 
 
 </resources>
