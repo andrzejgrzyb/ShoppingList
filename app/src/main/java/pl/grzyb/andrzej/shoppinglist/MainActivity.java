@@ -91,8 +91,12 @@ public class MainActivity extends AppCompatActivity
         cursorAdapter = new SimpleCursorAdapter(this,
                 R.layout.listview_shoplists,
                 cursor,
-                new String[]{DbContract.ShoppingListsEntry.COLUMN_NAME, DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE},
-                new int[]{R.id.shoppingListNameTextView, R.id.shoppingListModificationDateTextView},
+                new String[]{DbContract.ShoppingListsEntry.COLUMN_NAME, DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE,
+                        // the 2 below are never  used, but I want to bind textviews with datra, so I need some "fake" columns ;)
+                        DbContract.ShoppingListsEntry._ID, DbContract.ShoppingListsEntry._ID},
+                new int[]{R.id.shoppingListNameTextView, R.id.shoppingListModificationDateTextView,
+                        // the two view I'll populate with not cursor data, but data from external methods
+                        R.id.itemsCountTextView, R.id.percentTextView},
                 0);
 
         // set the Adapter and OnClickListener
@@ -105,6 +109,20 @@ public class MainActivity extends AppCompatActivity
                     long modificationDate = cursor.getLong(columnIndex);
                     TextView textView = (TextView) view;
                     textView.setText(DbUtilities.formatDate(getApplicationContext(), modificationDate));
+                    return true;
+                }
+                // Here I actually modify items count
+                else if (view.getId() == R.id.itemsCountTextView) {
+                    TextView textView = (TextView) view;
+                    int itemCount = DbUtilities.getShoppingListItemsCount(db, cursor.getLong(columnIndex));
+                    textView.setText(getResources().getQuantityString(R.plurals.numberOfItemsInShoppingList, itemCount, itemCount));
+                    return true;
+                }
+                else if (view.getId() == R.id.percentTextView) {
+                    TextView textView = (TextView) view;
+                    double percentCompleted = DbUtilities.getPercentageComplete(db, cursor.getLong(columnIndex));
+                    String outputString = String.format(getResources().getString(R.string.percentCompleted), percentCompleted);
+                    textView.setText(getResources().getString(R.string.percentCompleted, percentCompleted));
                     return true;
                 }
 
@@ -135,6 +153,8 @@ public class MainActivity extends AppCompatActivity
 
         // Add Context Menu to ListView
         registerForContextMenu(shoppingListsListView);
+        // When the list is empty show a TextView with an information about that
+        shoppingListsListView.setEmptyView((TextView) findViewById(R.id.empty_listview_textview));
     }
 
     @Override

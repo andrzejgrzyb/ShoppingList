@@ -93,6 +93,14 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="moved_to">Moved to</string>
+    <string name="listview_main_empty_label">You have no shopping lists. Add one using the button below.</string>
+    <string name="listview_shoppinglistview_empty_label">You have no items on the list. Add one using the button below.</string>
+    <string name="no_other_shopping_lists">There are no other shopping lists</string>
+    <string name="percentCompleted">%1$.0f%% completed</string>
 
 
+    <plurals name="numberOfItemsInShoppingList">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
 </resources>

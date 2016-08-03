@@ -243,13 +243,16 @@ public class DbUtilities {
 
         String whereClause = DbContract.ItemsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
+
+        // Get shopping list ID to update modification date. Do it before deleting item
+        long shoppingListId =  getShoppingListIdBasedOnItemId(db, id);
+
         // if number of rows affected > 0 -> result = true
         boolean result =
                 db.delete(DbContract.ItemsEntry.TABLE_NAME, whereClause, whereArgs) > 0;
 
-
         // add info about the modification to the Shopping List, new date and user id
-        updateShoppingList(mContext, getShoppingListIdBasedOnItemId(db, id), -1, null, null);
+        updateShoppingList(mContext, shoppingListId, -1, null, null);
 
         //Close DB
         db.close();
@@ -362,6 +365,31 @@ public class DbUtilities {
         // get cursor with all items
         Cursor cursor = getShoppingListItemsCursor(db, shoppingListId);
         return cursor.getCount();
+    }
+
+    public static double getPercentageComplete(SQLiteDatabase db, long shoppingListId) {
+        // Get total count of items in the list
+        int totalCount = getShoppingListItemsCount(db, shoppingListId);
+        if (totalCount != 0) {
+            // Query for a cursor with checked items
+            Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
+                    null,
+                    DbContract.ItemsEntry.COLUMN_LIST_ID + "=? AND "
+                            + DbContract.ItemsEntry.COLUMN_CHECKED + "=?",
+                    new String[]{Long.toString(shoppingListId), "1"},
+                    null,
+                    null,
+                    null,
+                    null);
+            // Count checked items
+            int checkedCount = cursor.getCount();
+            // Return value in percent (0-100%)
+            return checkedCount * 100 / totalCount ;
+        }
+        else {
+            return 0;
+        }
+
     }
 
     public static void changeItemPosition(Context mContext, Cursor cursor, long itemId, int startPosition, int endPosition) {

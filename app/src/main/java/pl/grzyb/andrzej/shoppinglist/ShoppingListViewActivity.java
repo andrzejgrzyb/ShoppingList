@@ -162,6 +162,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             long itemId = (Long) v.getTag();
                             DbUtilities.itemCheckBoxChange(getApplicationContext(), itemId, ((CheckBox) v).isChecked());
+                            refreshListView();
 //                            Toast.makeText(getApplicationContext(), String.valueOf(itemId), Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -178,6 +179,9 @@ public class ShoppingListViewActivity extends AppCompatActivity {
 
         // Add Context Menu to ListView
         this.registerForContextMenu(itemsListView);
+
+        // When the list is empty show a TextView with an information about that
+        itemsListView.setEmptyView((TextView) findViewById(R.id.empty_listview_textview));
     }
 
 
@@ -226,25 +230,32 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                 // Get a cursor with all lists
                 final Cursor allShoppingListsCursor = DbUtilities.getAllShoppingListsExceptOf(db, currentShoppingListId);
 
-                // Set cursor to the dialog builder, onClickListener and column name to be shown in the dialog as list
-                builder.setCursor(allShoppingListsCursor, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Get clicked shopping list ID
-                        allShoppingListsCursor.moveToPosition(which);
-                        long newShoppingListId = allShoppingListsCursor.getLong(allShoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry._ID));
-                        // Call a static method to move item to chosen shopping list
-                        int result = DbUtilities.moveItemToAnotherShoppingList(getApplicationContext(), itemId, newShoppingListId);
-                        if (result > 0) {
-                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.moved_to) + " " +
-                                            allShoppingListsCursor.getString(allShoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_NAME)),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                        refreshListView();
-                    }
-                },
-                        DbContract.ShoppingListsEntry.COLUMN_NAME
-                );
+                // Set cursor adapter if there is another shopping list
+                if (allShoppingListsCursor.moveToFirst()) {
+                    // Set cursor to the dialog builder, onClickListener and column name to be shown in the dialog as list
+                    builder.setCursor(allShoppingListsCursor, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // Get clicked shopping list ID
+                                    allShoppingListsCursor.moveToPosition(which);
+                                    long newShoppingListId = allShoppingListsCursor.getLong(allShoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry._ID));
+                                    // Call a static method to move item to chosen shopping list
+                                    int result = DbUtilities.moveItemToAnotherShoppingList(getApplicationContext(), itemId, newShoppingListId);
+                                    if (result > 0) {
+                                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.moved_to) + " " +
+                                                        allShoppingListsCursor.getString(allShoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_NAME)),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                    refreshListView();
+                                }
+                            },
+                            DbContract.ShoppingListsEntry.COLUMN_NAME
+                    );
+                }
+                // If there is no other shopping lists, add info about that.
+                else {
+                    builder.setMessage(R.string.no_other_shopping_lists);
+                }
 
                 //  Get the AlertDialog from create() and show it
                 AlertDialog dialog = builder.create();
