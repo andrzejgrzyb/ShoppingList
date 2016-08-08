@@ -337,7 +337,7 @@ public class DbUtilities {
 
         DecimalFormat df = new DecimalFormat("#.###");
         df.setRoundingMode(RoundingMode.HALF_UP);
-        return df.format(quantity);
+        return df.format(quantity).replace(',','.');
     }
 
     public static boolean deleteCheckedItems(Context mContext, long shoppingListId) {

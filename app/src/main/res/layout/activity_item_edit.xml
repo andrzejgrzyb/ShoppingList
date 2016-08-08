@@ -72,8 +72,8 @@
                 android:hint="@string/hint_item_quantity"
                 android:minWidth="100dp"
                 android:gravity="center_horizontal"
-                android:inputType="number|numberDecimal"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:inputType="phone" />
 
             <Button
                 style="?android:attr/buttonStyleSmall"
