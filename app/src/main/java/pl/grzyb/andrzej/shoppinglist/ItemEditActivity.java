@@ -48,6 +48,7 @@ public class ItemEditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LocaleHelper.onCreate(this);
         setContentView(R.layout.activity_item_edit);
         // Get toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

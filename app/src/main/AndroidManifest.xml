@@ -6,11 +6,13 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:configChanges="locale"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,17 +22,29 @@
         </activity>
         <activity
             android:name=".ShoppingListViewActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:configChanges="locale"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ShoppingListEditActivity"
+            android:configChanges="locale"
+            android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateVisible"
-            android:noHistory="true"></activity>
+            android:windowSoftInputMode="stateVisible" />
         <activity
             android:name=".ItemEditActivity"
+            android:configChanges="locale"
+            android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateVisible"
-            android:noHistory="true"></activity>
+            android:windowSoftInputMode="stateVisible" />
+        <activity
+            android:name=".SettingsActivity"
+            android:configChanges="locale"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pl.grzyb.andrzej.shoppinglist.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

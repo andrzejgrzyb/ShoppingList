@@ -3,6 +3,7 @@ package pl.grzyb.andrzej.shoppinglist.data;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.math.RoundingMode;
 import java.text.DateFormat;
 
+import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.TextView;
@@ -508,17 +510,25 @@ public class DbUtilities {
     }
 
     public static String createShareString(Context mContext, Cursor cursor, String name, String description) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        boolean includeTitle = sharedPreferences.getBoolean(mContext.getResources().getString(R.string.pref_key_share_list_title), true);
+        boolean includeDesc = sharedPreferences.getBoolean(mContext.getResources().getString(R.string.pref_key_share_list_desc), true);
         StringBuilder shareString = new StringBuilder();
         if (cursor.moveToFirst()) {
-            shareString.append(name);
-            shareString.append("\n");
+            if (includeTitle) {
+                shareString.append(name);
+                shareString.append("\n");
+            }
             // if there's a description, add it
-            if (!description.isEmpty()) {
+            if (!description.isEmpty() && includeDesc) {
                 shareString.append(description);
                 shareString.append("\n");
             }
             do {
-                shareString.append("\n");
+                if (shareString.length() != 0) {
+                    // add blank line if there something above the item list
+                    shareString.append("\n");
+                }
                 shareString.append(cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_NAME)));
                 shareString.append(" ");
                 shareString.append(DbUtilities.formatQuantity(

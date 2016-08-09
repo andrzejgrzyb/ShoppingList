@@ -46,4 +46,16 @@
         <item quantity="other">%d produktów</item>
     </plurals>
     <string name="error_cant_parse_number">Wprowadź poprawą liczbę</string>
+    <string name="nav_settings">Ustawienia</string>
+    <string name="nav_share">Powiedz znajomemu</string>
+    <string name="nav_rate">Oceń aplikację</string>
+    <string name="title_activity_settings">Ustawienia</string>
+    <string name="nav_contact">Kontakt z autorem</string>
+    <string name="pref_title_language">Język</string>
+    <string name="text_default">Domyślny</string>
+    <string name="pref_cat_sharing">Udostępnianie list przez wiadomości</string>
+    <string name="pref_title_share_list_title">Nazwa</string>
+    <string name="pref_summary_share_list_desc">Dodaj opis listy</string>
+    <string name="pref_summary_share_list_title">Dodaj nazwę listy</string>
+    <string name="pref_title_share_list_desc">Opis</string>
 </resources>

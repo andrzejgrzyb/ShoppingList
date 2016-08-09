@@ -1,0 +1,49 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--<CheckBoxPreference-->
+        <!--android:defaultValue="true"-->
+        <!--android:key="example_switch"-->
+        <!--android:summary="@string/pref_description_social_recommendations"-->
+        <!--android:title="@string/pref_title_social_recommendations" />-->
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <ListPreference
+        android:defaultValue=""
+        android:entries="@array/pref_language_list_titles"
+        android:entryValues="@array/pref_language_list_values"
+        android:key="@string/pref_key_language"
+        android:negativeButtonText="@string/cancel"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_language"
+        />
+    <PreferenceCategory
+        android:title="@string/pref_cat_sharing"
+
+        />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_share_list_title"
+        android:summary="@string/pref_summary_share_list_title"
+        android:title="@string/pref_title_share_list_title" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_share_list_desc"
+        android:summary="@string/pref_summary_share_list_desc"
+        android:title="@string/pref_title_share_list_desc" />
+    <!--<EditTextPreference-->
+        <!--android:capitalize="sentences"-->
+        <!--android:defaultValue="@string/pref_default_share_suffix"-->
+        <!--android:inputType="textCapSentences"-->
+        <!--android:key="@string/pref_key_share_suffix"-->
+        <!--android:maxLines="1"-->
+        <!--android:selectAllOnFocus="true"-->
+        <!--android:singleLine="true"-->
+        <!--android:title="@string/pref_title_share_suffix" />-->
+
+</PreferenceScreen>

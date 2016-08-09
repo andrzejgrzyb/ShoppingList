@@ -42,6 +42,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LocaleHelper.onCreate(this);
         setContentView(R.layout.activity_shopping_list_view);
 
         // Get toolbar
