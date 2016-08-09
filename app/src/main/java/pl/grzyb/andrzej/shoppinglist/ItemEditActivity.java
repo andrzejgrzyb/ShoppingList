@@ -179,11 +179,13 @@ public class ItemEditActivity extends AppCompatActivity {
         String name = itemNameEditText.getText().toString().trim();
         // Get quantity, if empty, set zero
         double quantity;
+        boolean quantityParseException = false;
         try {
-            quantity = Double.parseDouble(itemQuantityEditText.getText().toString());
+            quantity = Double.parseDouble(itemQuantityEditText.getText().toString().replace(',', '.'));
         }
         catch(NumberFormatException nfe) {
             quantity = 0;
+            quantityParseException = true;
         }
 
         // Get value from units RadioGroup
@@ -208,6 +210,10 @@ public class ItemEditActivity extends AppCompatActivity {
         if (name.length() < 3) {
             // Error: name should be at least 3 characters long
             Toast.makeText(ItemEditActivity.this, R.string.error_name_too_short, Toast.LENGTH_SHORT).show();
+        }
+        else if (quantityParseException) {
+            // Error: not a double
+            Toast.makeText(ItemEditActivity.this, R.string.error_cant_parse_number, Toast.LENGTH_SHORT).show();
         }
         else {
             // Insert row into DB

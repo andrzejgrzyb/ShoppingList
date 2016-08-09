@@ -18,15 +18,15 @@
     <string name="error_name_too_short">Name should have at least 3 characters.</string>
     <string name="error_no_record">Can\'t find record :(</string>
 
-    <string name="notify_shopping_list_added">Shopping List successfully created</string>
-    <string name="notify_shopping_list_updated">Shopping List successfully updated</string>
+    <string name="notify_shopping_list_added">Shopping list successfully created</string>
+    <string name="notify_shopping_list_updated">Shopping list successfully updated</string>
     <string name="text_less_than_minute_ago">just now</string>
     <string name="text_your_shopping_lists">Your shopping lists</string>
 
     <string-array name="context_menu_main_activity">
-        <item>Edit</item>
-        <item>Delete</item>
-        <item>Share</item>
+        <item>@string/edit</item>
+        <item>@string/delete</item>
+        <item>@string/share</item>
     </string-array>
 
 
@@ -39,17 +39,17 @@
 
     <string name="radio_quantity_unit_pcs">pcs</string>
 
-    <string name="radio_quantity_unit_l">l</string>
-    <string name="radio_quantity_unit_ml">ml</string>
-    <string name="radio_quantity_unit_g">g</string>
-    <string name="radio_quantity_unit_kg">kg</string>
-    <string name="radio_quantity_unit_m">m</string>
+    <string name="radio_quantity_unit_l" translatable="false">l</string>
+    <string name="radio_quantity_unit_ml" translatable="false">ml</string>
+    <string name="radio_quantity_unit_g" translatable="false">g</string>
+    <string name="radio_quantity_unit_kg" translatable="false">kg</string>
+    <string name="radio_quantity_unit_m" translatable="false">m</string>
 
-    <string name="radio_quantity_unit_fl_oz">fl oz</string>
-    <string name="radio_quantity_unit_gal">gal</string>
-    <string name="radio_quantity_unit_oz">oz</string>
-    <string name="radio_quantity_unit_lb">lb</string>
-    <string name="radio_quantity_unit_ft">ft</string>
+    <string name="radio_quantity_unit_fl_oz" translatable="false">fl oz</string>
+    <string name="radio_quantity_unit_gal" translatable="false">gal</string>
+    <string name="radio_quantity_unit_oz" translatable="false">oz</string>
+    <string name="radio_quantity_unit_lb" translatable="false">lb</string>
+    <string name="radio_quantity_unit_ft" translatable="false">ft</string>
 
     <string-array name="quantity_units_array">
         <item>@string/radio_quantity_unit_pcs</item>
@@ -90,13 +90,14 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="move_to_another_list">Move to another list</string>
-    <string name="ok">OK</string>
+    <string name="ok" translatable="false">OK</string>
     <string name="cancel">Cancel</string>
     <string name="moved_to">Moved to</string>
     <string name="listview_main_empty_label">You have no shopping lists. Add one using the button below.</string>
     <string name="listview_shoppinglistview_empty_label">You have no items on the list. Add one using the button below.</string>
     <string name="no_other_shopping_lists">There are no other shopping lists</string>
     <string name="percentCompleted">%1$.0f%% completed</string>
+    <string name="error_cant_parse_number">Enter a valid number</string>
 
 
     <plurals name="numberOfItemsInShoppingList">

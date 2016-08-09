@@ -512,7 +512,11 @@ public class DbUtilities {
         if (cursor.moveToFirst()) {
             shareString.append(name);
             shareString.append("\n");
-            shareString.append(description);
+            // if there's a description, add it
+            if (!description.isEmpty()) {
+                shareString.append(description);
+                shareString.append("\n");
+            }
             do {
                 shareString.append("\n");
                 shareString.append(cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_NAME)));

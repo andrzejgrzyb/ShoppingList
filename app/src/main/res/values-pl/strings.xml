@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lista zakupów</string>
+    <string name="action_settings">Ustawienia</string>
+    <string name="button_add">Dodaj</string>
+    <string name="button_save">Zapisz</string>
+    <string name="cancel">Anuluj</string>
+    <string name="delete">Usuń</string>
+    <string name="description">Opis</string>
+    <string name="edit">Edytuj</string>
+    <string name="error_name_too_short">Nazwa powinna zawierać conajmniej 3 znaki.</string>
+    <string name="error_no_record">Nie znaleziono rekordu :(</string>
+    <string name="hint_item_name">Nazwa produktu</string>
+    <string name="hint_item_quantity">Ilość</string>
+    <string name="hint_shopping_list_description">Opis</string>
+    <string name="hint_shopping_list_name">Nazwa listy zakupów</string>
+    <string name="listview_main_empty_label">Brak list zakupów. Dodaj używając przycisku poniżej.</string>
+    <string name="listview_shoppinglistview_empty_label">Brak produktów na liście. Dodaj używając przycisku poniżej.</string>
+    <string name="menu_clear_checked">Usuń zaznaczone produkty</string>
+    <string name="move_to_another_list">Przenieś do innej listy</string>
+    <string name="moved_to">Przeniesiono do</string>
+    <string name="navigation_drawer_close">Zamknij panel nawigacyjny</string>
+    <string name="navigation_drawer_open">Otwórz panel nawigacyjny</string>
+    <string name="no_other_shopping_lists">Nie ma innych list zakupów</string>
+    <string name="notify_item_added">Dodano produkt</string>
+    <string name="notify_item_updated">Zaktualizowano produkt</string>
+    <string name="notify_shopping_list_added">Dodano listę zakupów</string>
+    <string name="notify_shopping_list_updated">Zaktualizowano listę zakupów</string>
+    <string name="ok"></string>
+    <string name="percentCompleted">%1$.0f%% ukończono</string>
+    <string name="radio_quantity_unit_pcs">szt.</string>
+    <string name="share">Udostępnij</string>
+    <string name="text_less_than_minute_ago">przed chwilą</string>
+    <string name="text_quantity">Ilość</string>
+    <string name="text_your_shopping_lists">Twoje listy zakupów</string>
+    <string name="title_activity_item_add">Dodaj produkt</string>
+    <string name="title_activity_item_edit">Edytuj produkt</string>
+    <string name="title_activity_main">Twoje listy zakupów</string>
+    <string name="title_activity_shopping_list_add">Dodaj listę zakupów</string>
+    <string name="title_activity_shopping_list_edit">Edytuj listę zakupów</string>
+
+    <plurals name="numberOfItemsInShoppingList">
+        <item quantity="one">%d produkt</item>
+        <item quantity="few">%d produkty</item>
+        <item quantity="many">%d produktów</item>
+        <item quantity="other">%d produktów</item>
+    </plurals>
+    <string name="error_cant_parse_number">Wprowadź poprawą liczbę</string>
+</resources>

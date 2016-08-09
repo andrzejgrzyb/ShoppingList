@@ -73,7 +73,9 @@
                 android:minWidth="100dp"
                 android:gravity="center_horizontal"
                 android:singleLine="true"
-                android:inputType="phone" />
+                android:inputType="phone"
+                android:digits="0123456789,."
+                android:text="1" />
 
             <Button
                 style="?android:attr/buttonStyleSmall"
