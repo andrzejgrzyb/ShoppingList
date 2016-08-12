@@ -58,4 +58,6 @@
     <string name="pref_summary_share_list_desc">Dodaj opis listy</string>
     <string name="pref_summary_share_list_title">Dodaj nazwę listy</string>
     <string name="pref_title_share_list_desc">Opis</string>
+    <string name="share_app_string">Cześć. Korzystam z Listy zakupów, darmowej aplikacji, dzięki której możesz mieć swoją listę zakupów zawsze przy sobie. Pobierz ją ze Sklepu Play. </string>
+    <string name="contact_email_text">Zostaw proszę poniższe informacje o telefonie.</string>
 </resources>

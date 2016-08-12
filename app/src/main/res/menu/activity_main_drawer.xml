@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/gr1"
+        android:checkableBehavior="single">
         <!--<item-->
             <!--android:id="@+id/nav_camera"-->
             <!--android:icon="@drawable/ic_menu_camera"-->
@@ -20,21 +22,23 @@
             android:title="@string/nav_settings" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
+    <!--<item android:title="Communicate">-->
+        <group
+            android:id="@+id/gr2"
+            android:checkableBehavior="single">
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
+                android:icon="@drawable/ic_share_black_24dp"
                 android:title="@string/nav_share" />
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_rate"
                 android:icon="@drawable/ic_star_black_24dp"
                 android:title="@string/nav_rate" />
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
+                android:id="@+id/nav_contact"
+                android:icon="@drawable/ic_email_black_24dp"
                 android:title="@string/nav_contact" />
-        </menu>
-    </item>
+        </group>
+    <!--</item>-->
 
 </menu>

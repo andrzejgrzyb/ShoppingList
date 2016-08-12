@@ -1,8 +1,14 @@
 package pl.grzyb.andrzej.shoppinglist;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -20,6 +26,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 import pl.grzyb.andrzej.shoppinglist.data.DbContract;
 import pl.grzyb.andrzej.shoppinglist.data.DbHelper;
@@ -140,10 +148,6 @@ public class MainActivity extends AppCompatActivity
                 String shoppingListName = clickCursor.getString(clickCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
                 long shoppingListId = clickCursor.getInt(clickCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
 
-                // make a Toast with the clicked item description (just to test it)
-                Toast toast = Toast.makeText(getApplicationContext(), shoppingListName, Toast.LENGTH_SHORT);
-                toast.show();
-
                 Intent intent = new Intent(MainActivity.this, ShoppingListViewActivity.class);
                 intent.putExtra(ShoppingListViewActivity.EXTRA_SHOPPING_LIST_ID, shoppingListId);
                 startActivity(intent);
@@ -217,7 +221,6 @@ public class MainActivity extends AppCompatActivity
                 itemsCursor.close();
                 // Start the Activity
                 startActivity(DbUtilities.createShareIntent(shareString));
-                Toast.makeText(this, getResources().getStringArray(R.array.context_menu_main_activity)[menuItemIndex], Toast.LENGTH_SHORT).show();
                 break;
             default:
                 Toast.makeText(this, "WTF?!", Toast.LENGTH_SHORT);
@@ -279,15 +282,21 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            String shareString = getResources().getString(R.string.share_app_string);
+            startActivity(DbUtilities.createShareIntent(shareString));
+        } else if (id == R.id.nav_contact) {
+            openContactEmailIntent();
+        } else if (id == R.id.nav_rate) {
+            openAppRating(this);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -301,4 +310,80 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         cursorAdapter.notifyDataSetChanged();
     }
+
+    private void openContactEmailIntent() {
+        // Build email address and subject strings
+        String emailAddress = getResources().getString(R.string.contact_email_address);
+        String subject = getResources().getString(R.string.app_name);
+        // Build email body text
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("\n\n\n\n");
+        stringBuilder.append(getResources().getString(R.string.contact_email_text));
+        stringBuilder.append("\nVersion: " + BuildConfig.VERSION_NAME);
+        stringBuilder.append("\nLanguage: " + LocaleHelper.getLanguage(this));
+        stringBuilder.append("\nSERIAL: " + Build.SERIAL);
+        stringBuilder.append("\nMODEL: " + Build.MODEL);
+        stringBuilder.append("\nID: " + Build.ID);
+        stringBuilder.append("\nManufacture: " + Build.MANUFACTURER);
+        stringBuilder.append("\nbrand: " + Build.BRAND);
+        stringBuilder.append("\ntype: " + Build.TYPE);
+        stringBuilder.append("\nuser: " + Build.USER);
+        stringBuilder.append("\nBASE: " + Build.VERSION_CODES.BASE);
+        stringBuilder.append("\nINCREMENTAL " + Build.VERSION.INCREMENTAL);
+        stringBuilder.append("\nSDK  " + Build.VERSION.SDK);
+        stringBuilder.append("\nBOARD: " + Build.BOARD);
+        stringBuilder.append("\nBRAND " + Build.BRAND);
+        stringBuilder.append("\nHOST " + Build.HOST);
+        stringBuilder.append("\nFINGERPRINT: "+Build.FINGERPRINT);
+        stringBuilder.append("\nVersion Code: " + Build.VERSION.RELEASE);
+        String text = stringBuilder.toString();
+
+        Uri uri = Uri.parse("mailto:" + emailAddress)
+                .buildUpon()
+                .appendQueryParameter("subject", subject)
+                .appendQueryParameter("body", text)
+                .build();
+        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+//            intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] {emailAddress});
+//            intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+//            intent.putExtra(Intent.EXTRA_TEXT, text);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    public static void openAppRating(Context context) {
+        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.getPackageName()));
+        boolean marketFound = false;
+
+        // find all applications able to handle our rateIntent
+        final List<ResolveInfo> otherApps = context.getPackageManager().queryIntentActivities(rateIntent, 0);
+        for (ResolveInfo otherApp: otherApps) {
+            // look for Google Play application
+            if (otherApp.activityInfo.applicationInfo.packageName.equals("com.android.vending")) {
+
+                ActivityInfo otherAppActivity = otherApp.activityInfo;
+                ComponentName componentName = new ComponentName(
+                        otherAppActivity.applicationInfo.packageName,
+                        otherAppActivity.name
+                );
+                rateIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                rateIntent.setComponent(componentName);
+                context.startActivity(rateIntent);
+                marketFound = true;
+                break;
+
+            }
+        }
+
+        // if GP not present on device, open web browser
+        if (!marketFound) {
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+context.getPackageName()));
+            webIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+            context.startActivity(webIntent);
+        }
+    }
+
 }
+

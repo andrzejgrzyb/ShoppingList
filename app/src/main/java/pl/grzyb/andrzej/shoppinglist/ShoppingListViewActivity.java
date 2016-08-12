@@ -164,7 +164,6 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                             long itemId = (Long) v.getTag();
                             DbUtilities.itemCheckBoxChange(getApplicationContext(), itemId, ((CheckBox) v).isChecked());
                             refreshListView();
-//                            Toast.makeText(getApplicationContext(), String.valueOf(itemId), Toast.LENGTH_SHORT).show();
                         }
                     });
                     return true;

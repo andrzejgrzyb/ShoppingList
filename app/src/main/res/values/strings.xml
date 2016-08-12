@@ -183,6 +183,9 @@
     <string name="pref_title_share_list_desc">Description</string>
     <string name="pref_summary_share_list_desc">Include list description</string>
     <string name="pref_key_share_list_desc" translatable="false">Description</string>
+    <string name="share_app_string">Hi. I\'m using Shopping List, free app for having your shopping list everywhere you go. Download it from Play Store.</string>
+    <string name="contact_email_address" translatable="false">mgr.inz.andrzej.grzyb@gmail.com</string>
+    <string name="contact_email_text">Please, leave your phone\'s properties below.</string>
 
     <string-array name="pref_language_list_titles">
         <item>@string/text_default</item>
