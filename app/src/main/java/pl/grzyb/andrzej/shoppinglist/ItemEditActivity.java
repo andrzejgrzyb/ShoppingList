@@ -7,19 +7,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.sql.Types;
 import java.util.Arrays;
-import java.util.Locale;
 
 import pl.grzyb.andrzej.shoppinglist.data.DbContract;
 import pl.grzyb.andrzej.shoppinglist.data.DbHelper;

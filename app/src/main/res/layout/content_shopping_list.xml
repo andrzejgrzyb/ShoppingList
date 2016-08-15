@@ -4,38 +4,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="pl.grzyb.andrzej.shoppinglist.ShoppingListViewActivity"
     tools:showIn="@layout/activity_shopping_list_view">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/description"
-        android:id="@+id/shopping_list_description_text_view"/>
+        android:id="@+id/shopping_list_description_text_view"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/description_vertical_padding"
+        android:paddingBottom="@dimen/description_vertical_padding"
+        android:background="@color/colorPrimaryLight" />
 
-
-    <pl.grzyb.andrzej.shoppinglist.DragNDropList.DragNDropListView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/item_list_view"
-        android:paddingBottom="@dimen/listview_padding"
-        android:clipToPadding="false"
-        />
-    <TextView
-        android:id="@+id/empty_listview_textview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:padding="@dimen/listview_empty_label_padding"
-        android:visibility="gone"
-        android:text="@string/listview_shoppinglistview_empty_label"/>
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin" >
 
+        <pl.grzyb.andrzej.shoppinglist.DragNDropList.DragNDropListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/item_list_view"
+            android:paddingBottom="@dimen/listview_padding"
+            android:clipToPadding="false"
+            />
+        <TextView
+            android:id="@+id/empty_listview_textview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:padding="@dimen/listview_empty_label_padding"
+            android:visibility="gone"
+            android:text="@string/listview_shoppinglistview_empty_label"/>
 
+    </LinearLayout>
 
 </LinearLayout>

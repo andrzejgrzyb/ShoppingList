@@ -84,8 +84,11 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         setTitle(shoppingListName);
         // Set description
         TextView shoppingListDescriptionTextView = (TextView) findViewById(R.id.shopping_list_description_text_view);
-        shoppingListDescriptionTextView.setText(shoppingListDescription);
-
+        if (shoppingListDescription.isEmpty()) {
+            shoppingListDescriptionTextView.setVisibility(View.GONE);
+        } else {
+            shoppingListDescriptionTextView.setText(shoppingListDescription);
+        }
         // Get shopping list Cloud ID
         final long shoppingListIdCloud = shoppingListCursor.getLong(shoppingListCursor.getColumnIndex(
                 DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD));
@@ -123,12 +126,10 @@ public class ShoppingListViewActivity extends AppCompatActivity {
             @Override
             // Called when the item begins dragging.
             public void onItemDrag(DragNDropListView parent, View view, int position, long id) {
-
             }
 
             @Override
             // Called after the item is dropped in different place (actually moved)
-            //
             public void onItemDrop(DragNDropListView parent, View view, int startPosition, int endPosition, long id) {
                 // First, get cursor from adapter
                 Cursor cursor = (Cursor) itemsListView.getAdapter().getItem(startPosition);
@@ -136,9 +137,6 @@ public class ShoppingListViewActivity extends AppCompatActivity {
 
                 shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
                 cursorAdapter.swapCursor(shoppingListItemsCursor).close();
-
-                Log.d("MOVE", String.valueOf(id) + ": " +
-                        String.valueOf(startPosition) + " -> " + String.valueOf(endPosition));
             }
         });
         cursorAdapter.setViewBinder(new DragNDropCursorAdapter.ViewBinder() {
@@ -180,6 +178,13 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         // Add Context Menu to ListView
         this.registerForContextMenu(itemsListView);
 
+        // Open context menu when short click item
+        itemsListView.setOnItemClickListener(new DragNDropListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openContextMenu(view);
+            }
+        });
         // When the list is empty show a TextView with an information about that
         itemsListView.setEmptyView((TextView) findViewById(R.id.empty_listview_textview));
     }

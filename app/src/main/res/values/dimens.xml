@@ -8,4 +8,5 @@
     <dimen name="fab_margin">26dp</dimen>
     <dimen name="listview_padding">80dp</dimen>
     <dimen name="listview_empty_label_padding">16dp</dimen>
+    <dimen name="description_vertical_padding">8dp</dimen>
 </resources>

@@ -56,7 +56,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/text_quantity"
-                android:id="@+id/text_quantity_textView" />
+                android:id="@+id/text_quantity_textView"
+                android:padding="@dimen/description_vertical_padding"/>
 
             <Button
                 style="?android:attr/buttonStyleSmall"

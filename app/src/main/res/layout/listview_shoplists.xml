@@ -3,14 +3,17 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:descendantFocusability="blocksDescendants">
+
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView2"
-        android:src="@drawable/ic_reorder_grey_500_24dp"
-        android:layout_marginRight="10dp" />
+        android:id="@+id/iconImageView"
+        android:src="@drawable/ic_description_grey_24dp"
+        android:layout_marginRight="10dp"
+        />
 
     <LinearLayout
         android:orientation="vertical"

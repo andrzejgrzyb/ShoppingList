@@ -135,26 +135,19 @@ public class MainActivity extends AppCompatActivity
                     textView.setText(getResources().getString(R.string.percentCompleted, percentCompleted));
                     return true;
                 }
-
                 return false;
             }
         });
         shoppingListsListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-//                cursor.moveToPosition(position);
                 Cursor clickCursor = (Cursor) parent.getItemAtPosition(position);
-                String shoppingListName = clickCursor.getString(clickCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
                 long shoppingListId = clickCursor.getInt(clickCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
 
                 Intent intent = new Intent(MainActivity.this, ShoppingListViewActivity.class);
                 intent.putExtra(ShoppingListViewActivity.EXTRA_SHOPPING_LIST_ID, shoppingListId);
                 startActivity(intent);
             }
-
-
-
         });
 
         // Add Context Menu to ListView
