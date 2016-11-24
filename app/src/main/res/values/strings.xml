@@ -120,11 +120,6 @@
     <string name="pref_default_display_name" translatable="false">John Smith</string>
 
 
-
-
-
-
-
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync" translatable="false">Data &amp; sync</string>
 
@@ -170,7 +165,6 @@
     <string name="title_activity_settings">Settings</string>
 
 
-
     <string name="pref_title_language">Language</string>
     <string name="pref_key_language" translatable="false">Language</string>
 
@@ -186,6 +180,15 @@
     <string name="share_app_string">Hi. I\'m using Shopping List, free app for having your shopping list everywhere you go. Download it from Play Store.</string>
     <string name="contact_email_address" translatable="false">mgr.inz.andrzej.grzyb@gmail.com</string>
     <string name="contact_email_text">Please, leave your phone\'s properties below.</string>
+    <string name="continue_without_signin">Continue without signing in</string>
+    <string name="signed_out">Signed out</string>
+    <string name="desc_app_icon">Shopping List Logo</string>
+    <string name="signin_with_google">Sign in with Google</string>
+    <string name="server_client_id">918218334499-bb2mu0ch27f101gu89poeb8p2h1emikh.apps.googleusercontent.com</string>
+    <string name="signed_in_as">Signed in as: %s</string>
+    <string name="loading">Loading...</string>
+    <string name="signing_in">Signing in...</string>
+    <string name="continue_as">Continue as %s</string>
 
     <string-array name="pref_language_list_titles">
         <item>@string/text_default</item>

@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -32,6 +33,7 @@ import java.util.List;
 import pl.grzyb.andrzej.shoppinglist.data.DbContract;
 import pl.grzyb.andrzej.shoppinglist.data.DbHelper;
 import pl.grzyb.andrzej.shoppinglist.data.DbUtilities;
+import pl.grzyb.andrzej.shoppinglist.googlesignin.GoogleConnection;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -39,11 +41,16 @@ public class MainActivity extends AppCompatActivity
     private ListView shoppingListsListView;
     private SimpleCursorAdapter cursorAdapter = null;
     private SQLiteDatabase db;
+    private GoogleConnection googleConnection;
+    private final String TAG = this.getClass().getSimpleName();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LocaleHelper.onCreate(this);
+        googleConnection = GoogleConnection.getInstance(this);
+
         setTitle(R.string.title_activity_main);
 
         setContentView(R.layout.activity_main);
@@ -281,6 +288,8 @@ public class MainActivity extends AppCompatActivity
             openContactEmailIntent();
         } else if (id == R.id.nav_rate) {
             openAppRating(this);
+        } else if (id == R.id.nav_signout) {
+            googleConnection.disconnect();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -302,6 +311,18 @@ public class MainActivity extends AppCompatActivity
     public void onResume() {
         super.onResume();
         cursorAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(googleConnection.isSignedIn()) {
+            Log.d(TAG, "Email: "+ googleConnection.getEmail());
+
+
+        }
+
+
     }
 
     private void openContactEmailIntent() {
