@@ -7,7 +7,7 @@
     android:background="@color/colorAccent"
     android:orientation="vertical"
     android:weightSum="4"
-    tools:context="pl.grzyb.andrzej.shoppinglist.LoginActivity">
+    tools:context="pl.com.andrzejgrzyb.shoppinglist.LoginActivity">
 
 
     <LinearLayout

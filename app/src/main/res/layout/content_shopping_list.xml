@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="pl.grzyb.andrzej.shoppinglist.ShoppingListViewActivity"
+    tools:context="pl.com.andrzejgrzyb.shoppinglist.ShoppingListViewActivity"
     tools:showIn="@layout/activity_shopping_list_view">
 
     <TextView
@@ -27,7 +27,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin" >
 
-        <pl.grzyb.andrzej.shoppinglist.DragNDropList.DragNDropListView
+        <pl.com.andrzejgrzyb.shoppinglist.DragNDropList.DragNDropListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/item_list_view"

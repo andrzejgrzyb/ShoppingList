@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="pl.grzyb.andrzej.shoppinglist">
+    package="pl.com.andrzejgrzyb.shoppinglist">
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
@@ -9,39 +9,39 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.MainActivity"
             android:configChanges="locale"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
         <activity
-            android:name=".ShoppingListViewActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.ShoppingListViewActivity"
             android:configChanges="locale"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ShoppingListEditActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.ShoppingListEditActivity"
             android:configChanges="locale"
             android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateVisible" />
         <activity
-            android:name=".ItemEditActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.ItemEditActivity"
             android:configChanges="locale"
             android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateVisible" />
         <activity
-            android:name=".SettingsActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.SettingsActivity"
             android:configChanges="locale"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName="pl.com.andrzejgrzyb.shoppinglist.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="pl.grzyb.andrzej.shoppinglist.MainActivity" />
+                android:value="pl.com.andrzejgrzyb.shoppinglist.MainActivity" />
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.LoginActivity"
             android:configChanges="locale"
             android:theme="@style/AppTheme.NoActionBar"
             >
