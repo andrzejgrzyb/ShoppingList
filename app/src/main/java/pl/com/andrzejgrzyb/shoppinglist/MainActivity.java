@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LocaleHelper.onCreate(this);
-        googleConnection = GoogleConnection.getInstance(this);
+        googleConnection = new GoogleConnection(this);
 
         setTitle(R.string.title_activity_main);
 

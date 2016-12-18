@@ -2,6 +2,7 @@ package pl.com.andrzejgrzyb.shoppinglist;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,7 +23,7 @@ import java.util.Observer;
 import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 import pl.com.andrzejgrzyb.shoppinglist.googlesignin.State;
 
-public class LoginActivity extends AppCompatActivity  implements Observer, View.OnClickListener {
+public class LoginActivity extends FragmentActivity implements Observer, View.OnClickListener {
 
     private static final String TAG = "LoginActivity";
 
@@ -81,7 +82,7 @@ public class LoginActivity extends AppCompatActivity  implements Observer, View.
         mGoogleSignInButton.setOnClickListener(this);
         mNoSignInButton.setOnClickListener(this);
 
-        googleConnection = GoogleConnection.getInstance(this);
+        googleConnection = new GoogleConnection(this);
         googleConnection.addObserver(this);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

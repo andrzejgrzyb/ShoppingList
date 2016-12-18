@@ -17,10 +17,12 @@ package pl.com.andrzejgrzyb.shoppinglist.googlesignin;
  */
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
@@ -45,6 +47,18 @@ public class GoogleConnection extends Observable
 
     public static final int REQUEST_CODE = 1234;
     public static final String TAG = "GoogleConnection";
+   // private static GoogleConnection sGoogleConnection;
+
+    private WeakReference<Activity> activityWeakReference;
+    private static Activity mActivity;
+    private GoogleApiClient.Builder googleApiClientBuilder;
+    private GoogleApiClient googleApiClient;
+    private ConnectionResult connectionResult;
+    private GoogleSignInAccount mGoogleSignInAccount;
+    private State currentState;
+    private ProgressDialog mProgressDialog;
+    private static final int RC_SIGN_IN = 9001;
+
 
     public void connect() {
         Log.d(TAG, "connect, " + currentState.toString());
@@ -61,21 +75,21 @@ public class GoogleConnection extends Observable
         currentState.revokeAccessAndDisconnect(this);
     }
 
-    public static GoogleConnection getInstance(Activity activity) {
-        mActivity = activity;
-        Log.d(TAG, "getInstance, activity = " + mActivity.getClass().getSimpleName());
-        if (null == sGoogleConnection) {
-            Log.d(TAG, "sGoogleConnection == null");
-            sGoogleConnection = new GoogleConnection(activity);
-        }
-
-        return sGoogleConnection;
-    }
+//    public static GoogleConnection getInstance(Activity activity) {
+//        mActivity = activity;
+//        Log.d(TAG, "getInstance, activity = " + mActivity.getClass().getSimpleName());
+//        if (null == sGoogleConnection) {
+//            Log.d(TAG, "sGoogleConnection == null");
+//            sGoogleConnection = new GoogleConnection(activity);
+//        }
+//
+//        return sGoogleConnection;
+//    }
 
     @Override
     public void onConnected(Bundle hint) {
         Log.d(TAG, "onConnected");
-        changeState(State.OPENED);
+        //changeState(State.OPENED);
     }
 
     @Override
@@ -295,8 +309,9 @@ public class GoogleConnection extends Observable
 
     }
 
-    private GoogleConnection(Activity activity) {
-        activityWeakReference = new WeakReference<>(activity);
+    public GoogleConnection(FragmentActivity fragmentActivity) {
+       // activityWeakReference = new WeakReference<>(activity);
+        mActivity = fragmentActivity;
 
 
 //        googleApiClientBuilder =
@@ -314,20 +329,20 @@ public class GoogleConnection extends Observable
         // profile (name, profile picture URL, etc) so you should not need to
         // make an additional call to personalize your application.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(activity.getString(R.string.server_client_id))
+                .requestIdToken(fragmentActivity.getString(R.string.server_client_id))
                 .requestEmail()
                 .build();
         // [END configure_signin]
 
         // Build GoogleAPIClient with the Google Sign-In API and the above options.
-        googleApiClient = new GoogleApiClient.Builder(activity)
-            //    .enableAutoManage(activityWeakReference /* FragmentActivity */, this /* OnConnectionFailedListener */)
+        googleApiClient = new GoogleApiClient.Builder(fragmentActivity)
+                .enableAutoManage(fragmentActivity /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addOnConnectionFailedListener(this)
                 .addConnectionCallbacks(this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        currentState = State.CREATED;
+        changeState(State.CREATED);
 
 
     }
@@ -336,18 +351,8 @@ public class GoogleConnection extends Observable
         currentState = state;
         setChanged();
         notifyObservers(state);
+        Log.d(TAG, "changeState("+ state.toString() +")");
     }
 
-    private static GoogleConnection sGoogleConnection;
-
-    private WeakReference<Activity> activityWeakReference;
-    private static Activity mActivity;
-    private GoogleApiClient.Builder googleApiClientBuilder;
-    private GoogleApiClient googleApiClient;
-    private ConnectionResult connectionResult;
-    private GoogleSignInAccount mGoogleSignInAccount;
-    private State currentState;
-    private ProgressDialog mProgressDialog;
-    private static final int RC_SIGN_IN = 9001;
 
 }
