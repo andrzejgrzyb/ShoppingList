@@ -17,10 +17,8 @@ package pl.com.andrzejgrzyb.shoppinglist.googlesignin;
  */
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -46,7 +44,7 @@ public class GoogleConnection extends Observable
         implements ConnectionCallbacks, OnConnectionFailedListener {
 
     public static final int REQUEST_CODE = 1234;
-    public static final String TAG = "GoogleConnection";
+    public String TAG = "GoogleConnection";
    // private static GoogleConnection sGoogleConnection;
 
     private WeakReference<Activity> activityWeakReference;
@@ -61,18 +59,28 @@ public class GoogleConnection extends Observable
 
 
     public void connect() {
-        Log.d(TAG, "connect, " + currentState.toString());
-        currentState.connect(this);
+        Log.d(TAG, "connect");
+       // currentState.connect(this);
+        onSignIn();
+        if(!isSignedIn()) {
+            onSignUp();
+        }
+    }
+    public void connectSilently() {
+        Log.d(TAG, "connectSilently");
+        onSignIn();
     }
 
     public void disconnect() {
-        Log.d(TAG, "disconnect, " + currentState.toString());
-        currentState.disconnect(this);
+        Log.d(TAG, "disconnect");
+       // currentState.disconnect(this);
+        onSignOut();
     }
 
     public void revokeAccessAndDisconnect() {
-        Log.d(TAG, "revoke, " + currentState.toString());
-        currentState.revokeAccessAndDisconnect(this);
+        Log.d(TAG, "revoke");
+       // currentState.revokeAccessAndDisconnect(this);
+        onRevokeAccessAndDisconnect();
     }
 
 //    public static GoogleConnection getInstance(Activity activity) {
@@ -160,14 +168,15 @@ public class GoogleConnection extends Observable
             return null;
         }
     }
-    public Uri getPhotoUrl() {
+    public String getPhotoUrlString() {
         if (mGoogleSignInAccount != null) {
-            return mGoogleSignInAccount.getPhotoUrl();
+            return mGoogleSignInAccount.getPhotoUrl().toString();
         } else {
             return null;
         }
     }
     public boolean isSignedIn() {
+        Log.d(TAG, "isSignedIn: " + (mGoogleSignInAccount != null));
         return(mGoogleSignInAccount != null);
     }
 
@@ -312,7 +321,7 @@ public class GoogleConnection extends Observable
     public GoogleConnection(FragmentActivity fragmentActivity) {
        // activityWeakReference = new WeakReference<>(activity);
         mActivity = fragmentActivity;
-
+        TAG = TAG + "(" + mActivity.getClass().getSimpleName() + ")";
 
 //        googleApiClientBuilder =
 //                new GoogleApiClient.Builder(activityWeakReference.get().getApplicationContext())

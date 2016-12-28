@@ -53,7 +53,7 @@ public class LoginActivity extends FragmentActivity implements Observer, View.On
                 dialog.dismiss();
                 // Update the user interface to reflect that the user is signed in.
                 onSignedInUI();
-
+                goToMainActivity();
                 // We are signed in!
                 // Retrieve some profile information to personalize our app for the user.
 
@@ -145,7 +145,9 @@ public class LoginActivity extends FragmentActivity implements Observer, View.On
         super.onDestroy();
         Log.i(TAG, "onDestroy()");
         googleConnection.deleteObserver(this);
-        googleConnection.disconnect();
+        if (googleConnection.isSignedIn()) {
+            googleConnection.disconnect();
+        }
     }
 //    @Override
 //    protected void onPause() {
