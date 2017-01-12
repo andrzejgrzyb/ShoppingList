@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity
 
     private ListView shoppingListsListView;
     private SimpleCursorAdapter cursorAdapter = null;
-    private SQLiteDatabase db;
     private GoogleConnection googleConnection;
+    private DbUtilities dbUtilities;
     private final String TAG = this.getClass().getSimpleName();
     private static final int RC_SIGN_IN = 9001;
 
@@ -114,11 +114,15 @@ public class MainActivity extends AppCompatActivity
         // Populate Shopping Lists list
         shoppingListsListView = (ListView) findViewById(R.id.shopping_lists_list_view);
 
-        // Get reference to readable DB
-        DbHelper dbHelper = new DbHelper(this);
-        db = dbHelper.getReadableDatabase();
+        // Create GoogleConnection object
+        googleConnection = new GoogleConnection(this);
+        googleConnection.addObserver(this);
+        googleConnection.connectSilently();
+        // Get reference to DB
+        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+
         // Query DB to get Cursor to list of all Shopping Lists
-        final Cursor cursor = DbUtilities.getAllShoppingLists(db);
+        final Cursor cursor = dbUtilities.getAllShoppingLists();
 
         // Define SimpleCursorAdapter
         cursorAdapter = new SimpleCursorAdapter(this,
@@ -147,13 +151,13 @@ public class MainActivity extends AppCompatActivity
                 // Here I actually modify items count
                 else if (view.getId() == R.id.itemsCountTextView) {
                     TextView textView = (TextView) view;
-                    int itemCount = DbUtilities.getShoppingListItemsCount(db, cursor.getLong(columnIndex));
+                    int itemCount = dbUtilities.getShoppingListItemsCount(cursor.getLong(columnIndex));
                     textView.setText(getResources().getQuantityString(R.plurals.numberOfItemsInShoppingList, itemCount, itemCount));
                     return true;
                 }
                 else if (view.getId() == R.id.percentTextView) {
                     TextView textView = (TextView) view;
-                    double percentCompleted = DbUtilities.getPercentageComplete(db, cursor.getLong(columnIndex));
+                    double percentCompleted = dbUtilities.getPercentageComplete(cursor.getLong(columnIndex));
                     String outputString = String.format(getResources().getString(R.string.percentCompleted), percentCompleted);
                     textView.setText(getResources().getString(R.string.percentCompleted, percentCompleted));
                     return true;
@@ -177,10 +181,6 @@ public class MainActivity extends AppCompatActivity
         registerForContextMenu(shoppingListsListView);
         // When the list is empty show a TextView with an information about that
         shoppingListsListView.setEmptyView((TextView) findViewById(R.id.empty_listview_textview));
-
-        // Create GoogleConnection object
-        googleConnection = new GoogleConnection(this);
-        googleConnection.addObserver(this);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
 
             // Get name of clicked ShoppingList
-            final Cursor cursor = DbUtilities.getAllShoppingLists(db);
+            final Cursor cursor = dbUtilities.getAllShoppingLists();
             cursor.moveToPosition(info.position);
             String shoppingListName = cursor.getString(cursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
             // Set the name as a Context Menu header
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onContextItemSelected(MenuItem item) {
         // Move Cursor to the clicked Shopping List item in the ListView
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-        final Cursor shoppingListsCursor = DbUtilities.getAllShoppingLists(db);
+        final Cursor shoppingListsCursor = dbUtilities.getAllShoppingLists();
         shoppingListsCursor.moveToPosition(info.position);
         // Get the _ID of clicked ShoppingList
         long shoppingListId = shoppingListsCursor.getInt(shoppingListsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
@@ -226,21 +226,21 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
                 break;
             case 1: // Delete
-                DbUtilities.deleteShoppingList(this, shoppingListId);
-                cursorAdapter.swapCursor(DbUtilities.getAllShoppingLists(db)).close();
+                dbUtilities.deleteShoppingList(shoppingListId);
+                cursorAdapter.swapCursor(dbUtilities.getAllShoppingLists()).close();
                 break;
             case 2: // Share
                 // Get cursor to items of chosen shopping list
-                Cursor itemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+                Cursor itemsCursor = dbUtilities.getShoppingListItemsCursor(shoppingListId);
                 // Get shopping list's name and description
                 String name =        shoppingListsCursor.getString(shoppingListsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_NAME));
                 String description = shoppingListsCursor.getString(shoppingListsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION));
                 // Create a share string to be sent
-                String shareString = DbUtilities.createShareString(this, itemsCursor, name, description);
+                String shareString = dbUtilities.createShareString(itemsCursor, name, description);
                 // Close the cursor
                 itemsCursor.close();
                 // Start the Activity
-                startActivity(DbUtilities.createShareIntent(shareString));
+                startActivity(dbUtilities.createShareIntent(shareString));
                 break;
             default:
                 Toast.makeText(this, "WTF?!", Toast.LENGTH_SHORT);
@@ -325,12 +325,12 @@ public class MainActivity extends AppCompatActivity
     public void onDestroy() {
         super.onDestroy();
         // Close database
-        db.close();
+        dbUtilities.closeDb();
         Log.i(TAG, "onDestroy()");
         googleConnection.deleteObserver(this);
-        if (googleConnection.isSignedIn()) {
-            googleConnection.disconnect();
-        }
+//        if (googleConnection.isSignedIn()) {
+//            googleConnection.disconnect();
+//        }
 
     }
 
@@ -343,7 +343,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        googleConnection.connectSilently();
     }
 
     private void openContactEmailIntent() {
@@ -460,6 +459,9 @@ public class MainActivity extends AppCompatActivity
         // Show and hide Sign In/Out buttons
         mNavigationView.getMenu().findItem(R.id.nav_signin).setVisible(true);
         mNavigationView.getMenu().findItem(R.id.nav_signout).setVisible(false);
+
+        if (dbUtilities != null)
+            cursorAdapter.swapCursor(dbUtilities.getAllShoppingLists()).close();
     }
     private void onSignedInUI() {
         Log.d(TAG, "onSignedInUI");
@@ -475,6 +477,10 @@ public class MainActivity extends AppCompatActivity
         // Show and hide Sign In/Out buttons
         mNavigationView.getMenu().findItem(R.id.nav_signin).setVisible(false);
         mNavigationView.getMenu().findItem(R.id.nav_signout).setVisible(true);
+
+        if (dbUtilities != null)
+         cursorAdapter.swapCursor(dbUtilities.getAllShoppingLists()).close();
+
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -502,8 +508,8 @@ public class MainActivity extends AppCompatActivity
                 InputStream in = new java.net.URL(urldisplay).openStream();
                 mIcon11 = BitmapFactory.decodeStream(in);
             } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
+               // Log.e("Error", e.getMessage());
+               // e.printStackTrace();
             }
             return mIcon11;
         }

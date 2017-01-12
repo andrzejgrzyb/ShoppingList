@@ -111,7 +111,10 @@ public class LoginActivity extends FragmentActivity implements Observer, View.On
 // See https://g.co/AppIndexing/AndroidStudio for more information.
 
         Log.d(TAG, "onStart");
-       // googleConnection.connect();
+        googleConnection.connectSilently();
+        if (googleConnection.isSignedIn()) {
+            goToMainActivity();
+        }
 
 //        // OLD STUFF ///////////////////////////////////////////////////////////
 //        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
@@ -145,9 +148,9 @@ public class LoginActivity extends FragmentActivity implements Observer, View.On
         super.onDestroy();
         Log.i(TAG, "onDestroy()");
         googleConnection.deleteObserver(this);
-        if (googleConnection.isSignedIn()) {
-            googleConnection.disconnect();
-        }
+//        if (googleConnection.isSignedIn()) {
+//            googleConnection.disconnect();
+//        }
     }
 //    @Override
 //    protected void onPause() {

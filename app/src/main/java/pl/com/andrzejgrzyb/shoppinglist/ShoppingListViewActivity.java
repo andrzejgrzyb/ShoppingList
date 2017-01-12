@@ -26,16 +26,22 @@ import pl.com.andrzejgrzyb.shoppinglist.DragNDropList.DragNDropListView;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbHelper;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
+import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 
 public class ShoppingListViewActivity extends AppCompatActivity {
 
     public static final String EXTRA_SHOPPING_LIST_ID = "shoppingListId";
     private DragNDropCursorAdapter cursorAdapter = null;
-    private SQLiteDatabase db;
     private DragNDropListView itemsListView;
     private Cursor shoppingListItemsCursor;
     private long shoppingListId;
     private ShareActionProvider mShareActionProvider;
+
+    // Google Sign-in
+    private GoogleConnection googleConnection;
+
+    // Database
+    private DbUtilities dbUtilities;
 
 
     @Override
@@ -66,12 +72,14 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         // Get reference to the ListView
         itemsListView = (DragNDropListView) findViewById(R.id.item_list_view);
 
-        // Get reference to readable DB
-        DbHelper dbHelper = new DbHelper(this);
-        db = dbHelper.getReadableDatabase();
+        // Create new connection to Google API
+        googleConnection = new GoogleConnection(this);
+        // Get reference to DB
+        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+
 
         // Query DB to get Cursor to Shopping List entry
-        final Cursor shoppingListCursor = DbUtilities.getShoppingListCursor(db, shoppingListId);
+        final Cursor shoppingListCursor = dbUtilities.getShoppingListCursor(shoppingListId);
         shoppingListCursor.moveToFirst();
 
         //Get Name and Description strings
@@ -106,7 +114,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         });
 
         // Query DB to get Cursor to list of all Items of the Shopping List
-        shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+        shoppingListItemsCursor = dbUtilities.getShoppingListItemsCursor(shoppingListId);
 
         // Define SimpleCursorAdapter
         cursorAdapter = new DragNDropCursorAdapter(this,
@@ -132,9 +140,9 @@ public class ShoppingListViewActivity extends AppCompatActivity {
             public void onItemDrop(DragNDropListView parent, View view, int startPosition, int endPosition, long id) {
                 // First, get cursor from adapter
                 Cursor cursor = (Cursor) itemsListView.getAdapter().getItem(startPosition);
-                DbUtilities.changeItemPosition(getApplicationContext(), cursor, id, startPosition, endPosition);
+                dbUtilities.changeItemPosition(cursor, id, startPosition, endPosition);
 
-                shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+                shoppingListItemsCursor = dbUtilities.getShoppingListItemsCursor(shoppingListId);
                 cursorAdapter.swapCursor(shoppingListItemsCursor).close();
             }
         });
@@ -159,14 +167,14 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             long itemId = (Long) v.getTag();
-                            DbUtilities.itemCheckBoxChange(getApplicationContext(), itemId, ((CheckBox) v).isChecked());
+                            dbUtilities.itemCheckBoxChange(itemId, ((CheckBox) v).isChecked());
                             refreshListView();
                         }
                     });
                     return true;
                 } else if (columnIndex == cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT)) {
                     // Get index of coded unit (prefixed one, e.g. #kg)
-                    ((TextView) view).setText(DbUtilities.getLocalisedQuantitUnit(getApplicationContext(), cursor.getString(columnIndex)));
+                    ((TextView) view).setText(dbUtilities.getLocalisedQuantitUnit(cursor.getString(columnIndex)));
 
                     return true;
                 }
@@ -188,7 +196,11 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         itemsListView.setEmptyView((TextView) findViewById(R.id.empty_listview_textview));
     }
 
-
+    @Override
+    public void onStart() {
+        super.onStart();
+        googleConnection.connectSilently();
+    }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
@@ -230,9 +242,9 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                 //  Chain together various setter methods to set the dialog characteristics
                 builder.setTitle(R.string.move_to_another_list);
                 // Get current shopping list ID to not include it on the "move to..." list
-                long currentShoppingListId = DbUtilities.getShoppingListIdBasedOnItemId(db, itemId);
+                long currentShoppingListId = dbUtilities.getShoppingListIdBasedOnItemId(itemId);
                 // Get a cursor with all lists
-                final Cursor allShoppingListsCursor = DbUtilities.getAllShoppingListsExceptOf(db, currentShoppingListId);
+                final Cursor allShoppingListsCursor = dbUtilities.getAllShoppingListsExceptOf(currentShoppingListId);
 
                 // Set cursor adapter if there is another shopping list
                 if (allShoppingListsCursor.moveToFirst()) {
@@ -244,7 +256,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                                     allShoppingListsCursor.moveToPosition(which);
                                     long newShoppingListId = allShoppingListsCursor.getLong(allShoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry._ID));
                                     // Call a static method to move item to chosen shopping list
-                                    int result = DbUtilities.moveItemToAnotherShoppingList(getApplicationContext(), itemId, newShoppingListId);
+                                    int result = dbUtilities.moveItemToAnotherShoppingList(itemId, newShoppingListId);
                                     if (result > 0) {
                                         Toast.makeText(getApplicationContext(), getResources().getString(R.string.moved_to) + " " +
                                                         allShoppingListsCursor.getString(allShoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry.COLUMN_NAME)),
@@ -267,7 +279,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
 
                 break;
             case R.id.delete: // Delete
-                DbUtilities.deleteItem(this, itemId);
+                dbUtilities.deleteItem(itemId);
                 refreshListView();
                 break;
             default:
@@ -285,7 +297,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
 
         // Create share button String
         String description = ((TextView) findViewById(R.id.shopping_list_description_text_view)).getText().toString();
-        String shareString = DbUtilities.createShareString(this, cursorAdapter.getCursor(), getTitle().toString(), description);
+        String shareString = dbUtilities.createShareString(cursorAdapter.getCursor(), getTitle().toString(), description);
 
         // Locate MenuItem with ShareActionProvider
         MenuItem item = menu.findItem(R.id.menu_item_share);
@@ -304,7 +316,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_clear_checked:
-                DbUtilities.deleteCheckedItems(this, shoppingListId);
+                dbUtilities.deleteCheckedItems(shoppingListId);
                 refreshListView();
                 return true;
 
@@ -338,7 +350,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         super.onDestroy();
         // Close cursor and database
         shoppingListItemsCursor.close();
-        db.close();
+        dbUtilities.closeDb();
 
     }
 
@@ -349,7 +361,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     }
 
     public void refreshListView() {
-        shoppingListItemsCursor = DbUtilities.getShoppingListItemsCursor(db, shoppingListId);
+        shoppingListItemsCursor = dbUtilities.getShoppingListItemsCursor(shoppingListId);
         cursorAdapter.swapCursor(shoppingListItemsCursor).close();
     }
 

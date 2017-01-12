@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "ShoppingList.db";
 
     public DbHelper(Context context) {
@@ -35,18 +35,13 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.ItemsEntry.COLUMN_POSITION       + " INTEGER NOT NULL, " +
                 DbContract.ItemsEntry.COLUMN_CHECKED        + " INTEGER NOT NULL, " +
                 DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE  + " INTEGER NOT NULL, " +
-                DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID + " INTEGER NOT NULL, " +
-                DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD + " INTEGER NOT NULL, " +
+//                DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID + " INTEGER NOT NULL, " +
+                DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD + " TEXT NOT NULL, " +
 
 
                 // Set up the ListId column as a foreign key to ShoppingList table.
                 " FOREIGN KEY (" + DbContract.ItemsEntry.COLUMN_LIST_ID + ") REFERENCES " +
                 DbContract.ShoppingListsEntry.TABLE_NAME + " (" + DbContract.ShoppingListsEntry._ID + ") " +
-
-                //TODO: add foreign key for modifiedBy to users table _id
-                // Set up the ModifiedBy column as a foreign key to Users table.
-/*                " FOREIGN KEY (" + DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID + ") REFERENCES " +
-                DbContract.UsersEntry.TABLE_NAME + " (" + DbContract.UsersEntry._ID + "), " +      */
                 ");";
 
         db.execSQL(SQL_CREATE_ITEMS_TABLE);
@@ -56,27 +51,27 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD    + " INTEGER NOT NULL, " +
                 DbContract.ShoppingListsEntry.COLUMN_NAME        + " TEXT NOT NULL, " +
                 DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION + " TEXT, " +
-                DbContract.ShoppingListsEntry.COLUMN_OWNER_ID    + " INTEGER NOT NULL, " +
-                DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD    + " INTEGER NOT NULL, " +
+                DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD + " TEXT NOT NULL, " +
+                DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD    + " TEXT NOT NULL, " +
                 DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE   + " INTEGER NOT NULL, " +
-                DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID + " INTEGER NOT NULL, " +
-                DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD + " INTEGER NOT NULL, " +
-                DbContract.ShoppingListsEntry.COLUMN_HASHTAG             + " TEXT NOT NULL, " +
+//                DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID + " INTEGER NOT NULL, " +
+                DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD + " TEXT NOT NULL, " +
+                DbContract.ShoppingListsEntry.COLUMN_HASHTAG             + " TEXT NOT NULL " +
 
                // Set up the OwnerId column as a foreign key to Users table.
-                " FOREIGN KEY (" + DbContract.ShoppingListsEntry.COLUMN_OWNER_ID + ") REFERENCES " +
-                DbContract.UsersEntry.TABLE_NAME + " (" + DbContract.UsersEntry._ID + "), " +
+//                " FOREIGN KEY (" + DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD + ") REFERENCES " +
+//                DbContract.UsersEntry.TABLE_NAME + " (" + DbContract.UsersEntry._ID + "), " +
 
                 // Set up the ModifiedBy column as a foreign key to Users table.
-               " FOREIGN KEY (" + DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID + ") REFERENCES " +
-                DbContract.UsersEntry.TABLE_NAME + " (" + DbContract.UsersEntry._ID + ") " +
+//               " FOREIGN KEY (" + DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID + ") REFERENCES " +
+//                DbContract.UsersEntry.TABLE_NAME + " (" + DbContract.UsersEntry._ID + ") " +
                 ");";
         db.execSQL(SQL_CREATE_SHOPPING_LIST_TABLE);
 
         final String SQL_CREATE_USERS_TABLE = "CREATE TABLE " + DbContract.UsersEntry.TABLE_NAME + " (" +
                 DbContract.UsersEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 DbContract.UsersEntry.COLUMN_ID_CLOUD + " INTEGER NOT NULL, " +
-                DbContract.UsersEntry.COLUMN_LOGIN    + " TEXT NOT NULL, " +
+                DbContract.UsersEntry.COLUMN_EMAIL + " TEXT NOT NULL, " +
                 DbContract.UsersEntry.COLUMN_NAME     + " TEXT NOT NULL " +
 
                 ");";
@@ -94,6 +89,7 @@ public class DbHelper extends SQLiteOpenHelper {
         // to simply to discard the data and start over
         db.execSQL("DROP TABLE IF EXISTS " + DbContract.ItemsEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + DbContract.ShoppingListsEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.UsersEntry.TABLE_NAME);
 //        db.execSQL("DROP TABLE IF EXISTS " + DbContract.BindListEntry.TABLE_NAME);
         onCreate(db);
     }

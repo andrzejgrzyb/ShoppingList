@@ -13,6 +13,7 @@ import android.widget.Toast;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbHelper;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
+import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 
 public class ShoppingListEditActivity extends AppCompatActivity {
     public static final String EXTRA_SHOPPING_LIST_ID = "shoppingListId";
@@ -23,6 +24,13 @@ public class ShoppingListEditActivity extends AppCompatActivity {
     private EditText shoppingListDescriptionEditText;
     private String oldName;
     private String oldDescription;
+
+    // Google Sign-in
+    private GoogleConnection googleConnection;
+
+    // Database
+    private DbUtilities dbUtilities;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +56,11 @@ public class ShoppingListEditActivity extends AppCompatActivity {
         shoppingListNameEditText = (EditText) findViewById(R.id.shoppingListNameEditText);
         shoppingListDescriptionEditText = (EditText) findViewById(R.id.shoppingListDescriptionEditText);
 
+        // Create new connection to Google API
+        googleConnection = new GoogleConnection(this);
+        // Get reference to DB
+        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+
 
         // Get the intent
         Intent intent = getIntent();
@@ -59,11 +72,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
             shoppingListId = intent.getLongExtra(EXTRA_SHOPPING_LIST_ID, 0);
             setTitle(R.string.title_activity_shopping_list_edit);
 
-            // Get reference to readable DB
-            DbHelper dbHelper = new DbHelper(this);
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-            Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
+            Cursor cursor = dbUtilities.db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
                     new String[]{DbContract.ShoppingListsEntry.COLUMN_NAME, DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION}, // columns
                     DbContract.ShoppingListsEntry._ID + " = ?",
                     new String[]{String.valueOf(shoppingListId)},
@@ -82,14 +91,22 @@ public class ShoppingListEditActivity extends AppCompatActivity {
             else {
                 Toast.makeText(this, R.string.error_no_record, Toast.LENGTH_SHORT);
             }
-
-            db.close();
         }
         else {
             // We're adding a brand new Shopping List
             setTitle(R.string.title_activity_shopping_list_add);
         }
-
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        googleConnection.connectSilently();
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Close database
+        dbUtilities.closeDb();
     }
 
     public void onClickAddShoppingList(View view) {
@@ -104,7 +121,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
             // Get description and insert row into DB
             String description = shoppingListDescriptionEditText.getText().toString().trim();
             if (!editFlag) {
-                long rowId = DbUtilities.insertShoppingList(this,
+                long rowId = dbUtilities.insertShoppingList(
                         0,                  // don't know IdCloud yet, this should be updated by the sync class
                         name,
                         description);
@@ -114,7 +131,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
                 }
             }
             else if (!oldName.equals(name) || !oldDescription.equals(description)) {
-                int result = DbUtilities.updateShoppingList(this,
+                int result = dbUtilities.updateShoppingList(
                         shoppingListId,
                         0,
                         name,

@@ -73,8 +73,8 @@ public class GoogleConnection extends Observable
 
     public void disconnect() {
         Log.d(TAG, "disconnect");
-       // currentState.disconnect(this);
-        onSignOut();
+        currentState.disconnect(this);
+      //  onSignOut();
     }
 
     public void revokeAccessAndDisconnect() {
@@ -357,10 +357,10 @@ public class GoogleConnection extends Observable
     }
 
     private void changeState(State state) {
+        Log.d(TAG, "changeState("+ state.toString() +")");
         currentState = state;
         setChanged();
         notifyObservers(state);
-        Log.d(TAG, "changeState("+ state.toString() +")");
     }
 
 

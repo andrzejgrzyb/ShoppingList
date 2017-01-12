@@ -19,40 +19,52 @@ import java.util.Arrays;
 import java.util.Date;
 
 import pl.com.andrzejgrzyb.shoppinglist.R;
+import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 
 /**
  * Created by Andrzej on 24.06.2016.
  */
 public class DbUtilities {
+    private static final String TAG = "DbUtilities";
+    private GoogleConnection googleConnection;
+    public SQLiteDatabase db;
+    private Context context;
 
 
-    public static long insertUser(Context mContext, String login, String name) {
+    public DbUtilities(Context incomingContext, GoogleConnection incomingGoogleConnection) {
+        googleConnection = incomingGoogleConnection;
+        context = incomingContext;
 
         // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        DbHelper dbHelper = new DbHelper(context);
+        db = dbHelper.getWritableDatabase();
+    }
+
+    public void closeDb() {
+        db.close();
+    }
+
+
+    public long insertUser(String login, String name) {
 
         // Create ContentValues of what needs to be inserted
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbContract.UsersEntry.COLUMN_ID_CLOUD, 0);
-        contentValues.put(DbContract.UsersEntry.COLUMN_LOGIN, login);
+        contentValues.put(DbContract.UsersEntry.COLUMN_EMAIL, login);
         contentValues.put(DbContract.UsersEntry.COLUMN_NAME, name);
 
         // Insert ContentValues into the table and get row id back
         long userRowId;
         userRowId = db.insert(DbContract.UsersEntry.TABLE_NAME, null, contentValues);
 
-        // Close DB
-        db.close();
-
         return userRowId;
     }
 
-    public static Cursor getAllShoppingLists(SQLiteDatabase db) {
+    public Cursor getAllShoppingLists() {
         Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
                 null,
-                null,
-                null,
+                DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD + "=?",
+                new String[] {getCurrentUserIdCloud()},
                 null,
                 null,
                 DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE + " DESC"      //sortBy
@@ -61,7 +73,7 @@ public class DbUtilities {
         return cursor;
     }
 
-    public static Cursor getAllShoppingListsExceptOf(SQLiteDatabase db, long excludedId) {
+    public Cursor getAllShoppingListsExceptOf(long excludedId) {
         Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
                 new String[] {DbContract.ShoppingListsEntry._ID, DbContract.ShoppingListsEntry.COLUMN_NAME},
                 DbContract.ShoppingListsEntry._ID + "!=?",
@@ -73,23 +85,17 @@ public class DbUtilities {
         return cursor;
     }
 
-    public static long insertShoppingList(Context mContext,
-                                          long idCloud, String name, String description) {
-
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
+    public long insertShoppingList(long idCloud, String name, String description) {
         // Create ContentValues of what needs to be inserted
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, idCloud);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, name);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, description);
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID, getCurrentUserIdFromDB(db));
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, getCurrentUserIdCloud(db));
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, getCurrentUserIdCloud());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, getCurrentUserIdCloud());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB(db));
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud(db));
+//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_HASHTAG, 0);
 
 
@@ -97,17 +103,11 @@ public class DbUtilities {
         long shoppingListRowId;
         shoppingListRowId = db.insert(DbContract.ShoppingListsEntry.TABLE_NAME, null, contentValues);
 
-        // Close DB
-        db.close();
 
         return shoppingListRowId;
     }
 
-    public static int updateShoppingList(Context mContext,
-                                         long id, long idCloud, String name, String description) {
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public int updateShoppingList(long id, long idCloud, String name, String description) {
         // Form query
         String where = DbContract.ShoppingListsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
@@ -118,27 +118,20 @@ public class DbUtilities {
         if (name != null) contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, name);
         if (description != null)
             contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, description);
-//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID, ownerId);
+//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, ownerId);
 //        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, ownerIdCloud);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB(db));
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud(db));
+//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
 //        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_HASHTAG, hashTag);
 
         int result = db.update(DbContract.ShoppingListsEntry.TABLE_NAME, contentValues, where, whereArgs);
-        // Close DB
-        db.close();
+
         return result;
     }
 
-    public static long insertItem(Context mContext,
-                                  long idCloud, String name, double quantity,
-                                  String quantityUnit, long listId, long listIdCloud) {
-
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
+    public long insertItem(long idCloud, String name, double quantity,
+                           String quantityUnit, long listId, long listIdCloud) {
         // Create ContentValues of what needs to be inserted
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbContract.ItemsEntry.COLUMN_ID_CLOUD, idCloud);
@@ -147,30 +140,29 @@ public class DbUtilities {
         contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, quantityUnit);
         contentValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID, listId);
         contentValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID_CLOUD, listIdCloud);
-        contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, getShoppingListItemsCount(db, listId));
+        int position = 0;
+        Cursor shoppingListCursor = getShoppingListItemsCursor(listId);
+        if (shoppingListCursor.moveToLast()) {
+            position = 1+ shoppingListCursor.getInt(shoppingListCursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_POSITION));
+        }
+        contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, position);
         contentValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, 0);
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB(db));
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud(db));
+//        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
 
         // Insert ContentValues into the table and get row id back
         long itemRowId;
         itemRowId = db.insert(DbContract.ItemsEntry.TABLE_NAME, null, contentValues);
 
         // Add info about the modification to the Shopping List, new date and user id
-        updateShoppingList(mContext, listId, -1, null, null);
+        updateShoppingList(listId, -1, null, null);
 
-        // Close DB
-        db.close();
         return itemRowId;
     }
 
-    public static int updateItem(Context mContext,
-                                 long id, String name,
-                                 double quantity, String quantityUnit) {
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public int updateItem(long id, String name,
+                          double quantity, String quantityUnit) {
         // Form query
         String where = DbContract.ItemsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
@@ -180,23 +172,21 @@ public class DbUtilities {
         contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY, quantity);
         contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, quantityUnit);
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB(db));
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud(db));
+//        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
         // Uncheck item
         contentValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, 0);
 
         int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
 
         // add info about the modification to the Shopping List, new date and user id
-        updateShoppingList(mContext, getShoppingListIdBasedOnItemId(db, id), -1, null, null);
+        updateShoppingList(getShoppingListIdBasedOnItemId(id), -1, null, null);
 
-        // Close DB
-        db.close();
         return result;
     }
 
     // Returns Shopping List ID of a given Item based on ItemID
-    public static long getShoppingListIdBasedOnItemId(SQLiteDatabase db, long itemId) {
+    public long getShoppingListIdBasedOnItemId(long itemId) {
         // Form query
         String where = DbContract.ItemsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(itemId)};
@@ -217,11 +207,8 @@ public class DbUtilities {
         return result;
     }
 
-    public static int itemCheckBoxChange(Context mContext, long id, boolean checked) {
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        // Form query
+    public int itemCheckBoxChange(long id, boolean checked) {
+         // Form query
         String where = DbContract.ItemsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
 
@@ -232,37 +219,27 @@ public class DbUtilities {
         contentValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, checkedInteger);
 
         int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
-        db.close();
         return result;
     }
 
-    public static boolean deleteItem(Context mContext, long id) {
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
+    public boolean deleteItem(long id) {
         String whereClause = DbContract.ItemsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
 
         // Get shopping list ID to update modification date. Do it before deleting item
-        long shoppingListId =  getShoppingListIdBasedOnItemId(db, id);
+        long shoppingListId =  getShoppingListIdBasedOnItemId(id);
 
         // if number of rows affected > 0 -> result = true
         boolean result =
                 db.delete(DbContract.ItemsEntry.TABLE_NAME, whereClause, whereArgs) > 0;
 
         // add info about the modification to the Shopping List, new date and user id
-        updateShoppingList(mContext, shoppingListId, -1, null, null);
+        updateShoppingList(shoppingListId, -1, null, null);
 
-        //Close DB
-        db.close();
         return result;
     }
 
-    public static boolean deleteShoppingList(Context mContext, long id) {
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public boolean deleteShoppingList(long id) {
 
         String whereClause = DbContract.ShoppingListsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
@@ -270,12 +247,10 @@ public class DbUtilities {
         boolean result =
                 db.delete(DbContract.ShoppingListsEntry.TABLE_NAME, whereClause, whereArgs) > 0;
 
-        // Close DB
-        db.close();
         return result;
     }
 
-    public static Cursor getShoppingListItemsCursor(SQLiteDatabase db, long shoppingListId) {
+    public Cursor getShoppingListItemsCursor(long shoppingListId) {
         Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
                 null,
                 DbContract.ItemsEntry.COLUMN_LIST_ID + " = ?",
@@ -287,7 +262,7 @@ public class DbUtilities {
         return cursor;
     }
 
-    public static Cursor getShoppingListCursor(SQLiteDatabase db, long shoppingListId) {
+    public Cursor getShoppingListCursor(long shoppingListId) {
         Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
                 null, // columns
                 DbContract.ShoppingListsEntry._ID + " = ?",
@@ -298,12 +273,18 @@ public class DbUtilities {
         return cursor;
     }
 
-    public static long getCurrentUserIdFromDB(SQLiteDatabase db) {
+    public long getCurrentUserIdFromDB() {
         return 1;
     }
 
-    public static long getCurrentUserIdCloud(SQLiteDatabase db) {
-        return 0;
+    public String getCurrentUserIdCloud() {
+        String userIdCloud;
+        if (googleConnection.isSignedIn()) {
+            userIdCloud = googleConnection.getId();
+        }
+        else userIdCloud = "0";
+        Log.d(TAG, "getCurrentUserIdCloud(): " + userIdCloud);
+        return userIdCloud;
     }
 
     public static long getCurrentTime() {
@@ -340,10 +321,7 @@ public class DbUtilities {
         return df.format(quantity).replace(',','.');
     }
 
-    public static boolean deleteCheckedItems(Context mContext, long shoppingListId) {
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public boolean deleteCheckedItems(long shoppingListId) {
 
         String whereClause = DbContract.ItemsEntry.COLUMN_LIST_ID + "=? AND "
                 + DbContract.ItemsEntry.COLUMN_CHECKED + "=?";
@@ -353,23 +331,21 @@ public class DbUtilities {
                 db.delete(DbContract.ItemsEntry.TABLE_NAME, whereClause, whereArgs) > 0;
 
         // add info about the modification to the Shopping List, new date and user id
-        updateShoppingList(mContext, shoppingListId, -1, null, null);
+        updateShoppingList(shoppingListId, -1, null, null);
 
-        // Close DB
-        db.close();
 
         return result;
     }
 
-    public static int getShoppingListItemsCount(SQLiteDatabase db, long shoppingListId) {
+    public int getShoppingListItemsCount(long shoppingListId) {
         // get cursor with all items
-        Cursor cursor = getShoppingListItemsCursor(db, shoppingListId);
+        Cursor cursor = getShoppingListItemsCursor(shoppingListId);
         return cursor.getCount();
     }
 
-    public static double getPercentageComplete(SQLiteDatabase db, long shoppingListId) {
+    public double getPercentageComplete(long shoppingListId) {
         // Get total count of items in the list
-        int totalCount = getShoppingListItemsCount(db, shoppingListId);
+        int totalCount = getShoppingListItemsCount(shoppingListId);
         if (totalCount != 0) {
             // Query for a cursor with checked items
             Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
@@ -392,13 +368,9 @@ public class DbUtilities {
 
     }
 
-    public static void changeItemPosition(Context mContext, Cursor cursor, long itemId, int startPosition, int endPosition) {
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
+    public void changeItemPosition(Cursor cursor, long itemId, int startPosition, int endPosition) {
         // Change moved item's position
-        updateItemPosition(db, itemId, endPosition);
+        updateItemPosition(itemId, endPosition);
         cursor.moveToPosition(startPosition);
         Log.d("changeItemPosition", cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_NAME)) + " " + String.valueOf(endPosition));
 
@@ -421,17 +393,14 @@ public class DbUtilities {
         }
         for (int i = i_start; i <= i_end; i++) {
             cursor.moveToPosition(i);
-            updateItemPosition(db, cursor.getLong(cursor.getColumnIndex(DbContract.ItemsEntry._ID)), i + positionChange);
+            updateItemPosition(cursor.getLong(cursor.getColumnIndex(DbContract.ItemsEntry._ID)), i + positionChange);
             Log.d("changeItemPosition", cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_NAME)) + " " + String.valueOf(i+positionChange));
         }
         // Just write the modification date and user ID to the Shopping List
-        updateShoppingList(mContext, getShoppingListIdBasedOnItemId(db, itemId), -1, null, null);
-        // Close DB
-        db.close();
+        updateShoppingList(getShoppingListIdBasedOnItemId(itemId), -1, null, null);
     }
 
-    public static int updateItemPosition(SQLiteDatabase db,
-                                          long id, int newPosition) {
+    public int updateItemPosition(long id, int newPosition) {
         // Form query
         String where = DbContract.ItemsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
@@ -439,46 +408,40 @@ public class DbUtilities {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, newPosition);
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB(db));
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud(db));
+//        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
 
 
         int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
         return result;
     }
 
-    public static int moveItemToAnotherShoppingList(Context mContext, long itemId, long newShoppingListId) {
-        // Get reference to writable DB
-        DbHelper dbHelper = new DbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        long oldShoppingListId = getShoppingListIdBasedOnItemId(db, itemId);
-        long newShoppingListIdCloud = getShoppingListIdCloud(db, newShoppingListId);
+    public int moveItemToAnotherShoppingList(long itemId, long newShoppingListId) {
+        long oldShoppingListId = getShoppingListIdBasedOnItemId(itemId);
+        long newShoppingListIdCloud = getShoppingListIdCloud(newShoppingListId);
 
         // Form query
         String where = DbContract.ItemsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(itemId)};
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, getShoppingListItemsCount(db, newShoppingListId));
+        contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, getShoppingListItemsCount(newShoppingListId));
         contentValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID, newShoppingListId);
         contentValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID_CLOUD, newShoppingListIdCloud);
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB(db));
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud(db));
+//        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
 
         int result = db.update(DbContract.ItemsEntry.TABLE_NAME, contentValues, where, whereArgs);
 
         // add info about the modification to Shopping Lists, new date and user id
-        updateShoppingList(mContext, oldShoppingListId, -1, null, null);
-        updateShoppingList(mContext, newShoppingListId, -1, null, null);
-        // Close DB
-        db.close();
+        updateShoppingList(oldShoppingListId, -1, null, null);
+        updateShoppingList(newShoppingListId, -1, null, null);
 
         return result;
     }
 
-    public static long getShoppingListIdCloud(SQLiteDatabase db, long shoppingListId) {
+    public long getShoppingListIdCloud(long shoppingListId) {
         // Form query
         String where = DbContract.ShoppingListsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(shoppingListId)};
@@ -507,10 +470,10 @@ public class DbUtilities {
         return shareIntent;
     }
 
-    public static String createShareString(Context mContext, Cursor cursor, String name, String description) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        boolean includeTitle = sharedPreferences.getBoolean(mContext.getResources().getString(R.string.pref_key_share_list_title), true);
-        boolean includeDesc = sharedPreferences.getBoolean(mContext.getResources().getString(R.string.pref_key_share_list_desc), true);
+    public String createShareString(Cursor cursor, String name, String description) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean includeTitle = sharedPreferences.getBoolean(context.getResources().getString(R.string.pref_key_share_list_title), true);
+        boolean includeDesc = sharedPreferences.getBoolean(context.getResources().getString(R.string.pref_key_share_list_desc), true);
         StringBuilder shareString = new StringBuilder();
         if (cursor.moveToFirst()) {
             if (includeTitle) {
@@ -531,16 +494,16 @@ public class DbUtilities {
                 shareString.append(" ");
                 shareString.append(DbUtilities.formatQuantity(
                         cursor.getDouble(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY))));
-                shareString.append(getLocalisedQuantitUnit(mContext,
+                shareString.append(getLocalisedQuantitUnit(
                         cursor.getString(cursor.getColumnIndex(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT))));
             } while (cursor.moveToNext());
         }
         return shareString.toString();
     }
-    public static String getLocalisedQuantitUnit(Context mContext, String quantityUnit) {
-        int unitId = Arrays.asList(mContext.getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(quantityUnit);
+    public String getLocalisedQuantitUnit(String quantityUnit) {
+        int unitId = Arrays.asList(context.getResources().getStringArray(R.array.quantity_units_codes_array)).indexOf(quantityUnit);
         if (unitId != -1)
-            return mContext.getResources().getStringArray(R.array.quantity_units_array)[unitId];
+            return context.getResources().getStringArray(R.array.quantity_units_array)[unitId];
         else return "";
 
     }

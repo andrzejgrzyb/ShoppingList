@@ -46,7 +46,7 @@ public final class DbContract {
         public static final String COLUMN_POSITION = "position";
         public static final String COLUMN_CHECKED = "checked";
         public static final String COLUMN_MODIFICATION_DATE = "modificationDate";
-        public static final String COLUMN_MODIFIED_BY_ID = "modifiedById"; // id of the user who did the last modification
+//        public static final String COLUMN_MODIFIED_BY_ID = "modifiedById"; // id of the user who did the last modification
         public static final String COLUMN_MODIFIED_BY_ID_CLOUD = "modifiedByIdCloud"; // id of the user who did the last modification
 
 
@@ -68,10 +68,10 @@ public final class DbContract {
         public static final String COLUMN_ID_CLOUD = "idCloud";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DESCRIPTION = "description";
-        public static final String COLUMN_OWNER_ID = "ownerId";
+        public static final String COLUMN_PERMITTED_USER_ID_CLOUD = "permittedUserIdCloud";
         public static final String COLUMN_OWNER_ID_CLOUD = "ownerIdCloud";
         public static final String COLUMN_MODIFICATION_DATE = "modificationDate";
-        public static final String COLUMN_MODIFIED_BY_ID = "modifiedById"; // id of the user who did the last modification
+//        public static final String COLUMN_MODIFIED_BY_ID = "modifiedById"; // id of the user who did the last modification
         public static final String COLUMN_MODIFIED_BY_ID_CLOUD = "modifiedByIdCloud"; // id of the user who did the last modification
         public static final String COLUMN_HASHTAG = "hashtag";
 
@@ -91,7 +91,7 @@ public final class DbContract {
     public static final class UsersEntry implements BaseColumns {
         public static final String TABLE_NAME = "users";
         public static final String COLUMN_ID_CLOUD = "idCloud";
-        public static final String COLUMN_LOGIN = "login";
+        public static final String COLUMN_EMAIL = "email";
         public static final String COLUMN_NAME = "name";
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build();

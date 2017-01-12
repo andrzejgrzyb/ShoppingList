@@ -18,6 +18,7 @@ import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbHelper;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
 import pl.com.andrzejgrzyb.shoppinglist.data.RepeatListener;
+import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 
 public class ItemEditActivity extends AppCompatActivity {
     public static final String EXTRA_SHOPPING_LIST_ID = "shoppingListId";
@@ -36,6 +37,12 @@ public class ItemEditActivity extends AppCompatActivity {
     private String oldName;
     private double oldQuantity;
     private String oldQuantityUnit;
+
+    // Google Sign-in
+    private GoogleConnection googleConnection;
+
+    // Database
+    private DbUtilities dbUtilities;
 
 
     @Override
@@ -99,6 +106,11 @@ public class ItemEditActivity extends AppCompatActivity {
             }
         }));
 
+        // Create new connection to Google API
+        googleConnection = new GoogleConnection(this);
+        // Get reference to DB
+        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+
 
         // Get the intent
         Intent intent = getIntent();
@@ -114,11 +126,7 @@ public class ItemEditActivity extends AppCompatActivity {
             itemId = intent.getLongExtra(EXTRA_ITEM_ID, 0);
             setTitle(R.string.title_activity_item_edit);
 
-            // Get reference to readable DB
-            DbHelper dbHelper = new DbHelper(this);
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-            Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
+            Cursor cursor = dbUtilities.db.query(DbContract.ItemsEntry.TABLE_NAME,
                     null, // columns
                     DbContract.ItemsEntry._ID + " = ?",
                     new String[]{String.valueOf(itemId)},
@@ -159,8 +167,6 @@ public class ItemEditActivity extends AppCompatActivity {
             else {
                 Toast.makeText(this, R.string.error_no_record, Toast.LENGTH_SHORT);
             }
-
-            db.close();
         }
         else {
             // We're adding a brand new Item
@@ -168,6 +174,17 @@ public class ItemEditActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        googleConnection.connectSilently();
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Close database
+        dbUtilities.closeDb();
+    }
     public void onClickSaveButton(View view) {
         // Get name and quantity from the EditText views and trim blank characters
         String name = itemNameEditText.getText().toString().trim();
@@ -212,7 +229,7 @@ public class ItemEditActivity extends AppCompatActivity {
         else {
             // Insert row into DB
             if (!editFlag) {
-                long rowId = DbUtilities.insertItem(this,
+                long rowId = dbUtilities.insertItem(
                         0,                  // don't know IdCloud yet, this should be updated by the sync class
                         name,
                         quantity,
@@ -225,7 +242,7 @@ public class ItemEditActivity extends AppCompatActivity {
                 }
             }
             else if (!oldName.equals(name) || oldQuantity != quantity || !oldQuantityUnit.equals(quantityUnit)) {
-                int result = DbUtilities.updateItem(this,
+                int result = dbUtilities.updateItem(
                         itemId,
                         name,
                         quantity,
