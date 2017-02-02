@@ -44,7 +44,7 @@ public class DbDummyData {
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, 0);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, name);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, description);
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, ownerId);
+//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, ownerId);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, "0");
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, TEST_DATE);
 //        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, ownerId);

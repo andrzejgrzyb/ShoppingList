@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.lang.reflect.Array;
 import java.math.RoundingMode;
 import java.text.DateFormat;
 
@@ -14,12 +15,21 @@ import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import pl.com.andrzejgrzyb.shoppinglist.R;
 import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
+import pl.com.andrzejgrzyb.shoppinglist.model.Item;
+import pl.com.andrzejgrzyb.shoppinglist.model.ShoppingList;
+import pl.com.andrzejgrzyb.shoppinglist.model.User;
 
 /**
  * Created by Andrzej on 24.06.2016.
@@ -27,7 +37,10 @@ import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 public class DbUtilities {
     private static final String TAG = "DbUtilities";
     private GoogleConnection googleConnection;
-    public SQLiteDatabase db;
+
+
+
+    private SQLiteDatabase db;
     private Context context;
 
 
@@ -44,14 +57,18 @@ public class DbUtilities {
         db.close();
     }
 
+    public SQLiteDatabase getDb() {
+        return db;
+    }
 
-    public long insertUser(String login, String name) {
+    public long insertUser(String idCloud, String email, String name, String image) {
 
         // Create ContentValues of what needs to be inserted
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DbContract.UsersEntry.COLUMN_ID_CLOUD, 0);
-        contentValues.put(DbContract.UsersEntry.COLUMN_EMAIL, login);
+        contentValues.put(DbContract.UsersEntry.COLUMN_ID_CLOUD, idCloud);
+        contentValues.put(DbContract.UsersEntry.COLUMN_EMAIL, email);
         contentValues.put(DbContract.UsersEntry.COLUMN_NAME, name);
+        contentValues.put(DbContract.UsersEntry.COLUMN_IMAGE, image);
 
         // Insert ContentValues into the table and get row id back
         long userRowId;
@@ -59,12 +76,27 @@ public class DbUtilities {
 
         return userRowId;
     }
+    public long insertUser(User user) {
+        return insertUser(user.getIdCloud(), user.getEmail(), user.getName(), user.getImage());
+    }
+
+    public Cursor getUserByIdCloud(String idCloud) {
+        Cursor cursor = db.query(DbContract.UsersEntry.TABLE_NAME,
+                null,
+                DbContract.UsersEntry.COLUMN_ID_CLOUD + "=?",
+                new String[] {idCloud},
+                null,
+                null,
+                null);
+        return cursor;
+    }
 
     public Cursor getAllShoppingLists() {
         Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
                 null,
-                DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD + "=?",
-                new String[] {getCurrentUserIdCloud()},
+//                DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD + "=?",
+//                new String[] {getCurrentUserIdCloud()},
+                null, null,
                 null,
                 null,
                 DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE + " DESC"      //sortBy
@@ -91,7 +123,7 @@ public class DbUtilities {
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, idCloud);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, name);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, description);
-        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, getCurrentUserIdCloud());
+//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, getCurrentUserIdCloud());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, getCurrentUserIdCloud());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
 //        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
@@ -106,8 +138,26 @@ public class DbUtilities {
 
         return shoppingListRowId;
     }
+    public long insertShoppingList(ShoppingList shoppingList) {
+        // Create ContentValues of what needs to be inserted
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, shoppingList.getIdCloud());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, shoppingList.getName());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, shoppingList.getDescription());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, shoppingList.getOwnerIdCloud());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, shoppingList.getModificationDate());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, shoppingList.getModifiedByIdCloud());
+        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_HASHTAG, shoppingList.getHashtag());
 
-    public int updateShoppingList(long id, long idCloud, String name, String description) {
+        // Insert ContentValues into the table and get row id back
+        long shoppingListRowId;
+        shoppingListRowId = db.insert(DbContract.ShoppingListsEntry.TABLE_NAME, null, contentValues);
+
+        return shoppingListRowId;
+    }
+
+
+        public int updateShoppingList(long id, long idCloud, String name, String description) {
         // Form query
         String where = DbContract.ShoppingListsEntry._ID + "=?";
         String[] whereArgs = new String[]{String.valueOf(id)};
@@ -130,6 +180,21 @@ public class DbUtilities {
         return result;
     }
 
+    public Cursor getItemsOfShoppingLists(ArrayList<Long> shoppingListsIds) {
+        String[] selectionArgs = new String[shoppingListsIds.size()];
+        for (int i = 0; i < shoppingListsIds.size(); i++)
+            selectionArgs[i] = shoppingListsIds.get(i).toString();
+        Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
+                null,
+                DbContract.ItemsEntry.COLUMN_LIST_ID + "=?",
+                selectionArgs,
+                null,
+                null,
+                DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE + " DESC"      //sortBy
+        );
+
+        return cursor;
+    }
     public long insertItem(long idCloud, String name, double quantity,
                            String quantityUnit, long listId, long listIdCloud) {
         // Create ContentValues of what needs to be inserted
@@ -157,6 +222,27 @@ public class DbUtilities {
 
         // Add info about the modification to the Shopping List, new date and user id
         updateShoppingList(listId, -1, null, null);
+
+        return itemRowId;
+    }
+
+    public long insertItem(Item item) {
+        // Create ContentValues of what needs to be inserted
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.ItemsEntry.COLUMN_ID_CLOUD, item.getIdCloud());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_NAME, item.getName());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY, item.getQuantity());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, item.getQuantityUnit());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID, getShoppingListIdBasedOnIdCloud(item.getListIdCloud()));
+        contentValues.put(DbContract.ItemsEntry.COLUMN_LIST_ID_CLOUD, item.getListIdCloud());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, item.getPosition());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, item.getChecked());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, item.getModificationDate());
+        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, item.getModifiedByIdCloud());
+
+        // Insert ContentValues into the table and get row id back
+        long itemRowId;
+        itemRowId = db.insert(DbContract.ItemsEntry.TABLE_NAME, null, contentValues);
 
         return itemRowId;
     }
@@ -461,6 +547,137 @@ public class DbUtilities {
         return idCloud;
     }
 
+    public long getShoppingListIdBasedOnIdCloud(long idCloud) {
+        String where = DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD + "=?";
+        String[] whereArgs = new String[]{String.valueOf(idCloud)};
+
+        Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
+                new String[]{DbContract.ShoppingListsEntry._ID},
+                where,
+                whereArgs,
+                null,
+                null,
+                null);
+        if (cursor.moveToFirst()) {
+            return cursor.getLong(cursor.getColumnIndex(DbContract.ShoppingListsEntry._ID));
+        }
+        else return 0;
+    }
+    public JSONArray cursor2Json(Cursor cursor) {
+        JSONArray resultSet = new JSONArray();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            int totalColumn = cursor.getColumnCount();
+            JSONObject rowObject = new JSONObject();
+            for (int i = 0; i < totalColumn; i++) {
+                if (cursor.getColumnName(i) != null) {
+                    try {
+                        rowObject.put(cursor.getColumnName(i),
+                                cursor.getString(i));
+                    } catch (Exception e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                }
+            }
+            resultSet.put(rowObject);
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        return resultSet;
+    }
+
+    public String getShoppingListsAndItemsInJSONString() {
+        Cursor shoppingListsCursor = getAllShoppingLists();
+        ArrayList<Long> shoppingListsIds = new ArrayList<Long>();
+        if (shoppingListsCursor.moveToFirst()) {
+            int colIndex = shoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry._ID);
+            while (!shoppingListsCursor.isAfterLast()) {
+                shoppingListsIds.add(shoppingListsCursor.getLong(colIndex));
+                shoppingListsCursor.moveToNext();
+            }
+        }
+        JSONObject userJsonObj = new JSONObject();
+        JSONObject shoppingListJsonObj = new JSONObject();
+        JSONObject itemJsonObj = new JSONObject();
+        JSONObject syncDataJsonObj = new JSONObject();
+
+        try {
+            userJsonObj.put("id", googleConnection.getId());
+            userJsonObj.put("token", googleConnection.getIdToken());
+            userJsonObj.put("email", googleConnection.getEmail());
+            userJsonObj.put("name", googleConnection.getName());
+            userJsonObj.put("image", googleConnection.getPhotoUrlString());
+            shoppingListJsonObj.put("shoppingList", cursor2Json(shoppingListsCursor));
+            itemJsonObj.put("item", cursor2Json(getItemsOfShoppingLists(shoppingListsIds)));
+            syncDataJsonObj.put("login", userJsonObj);
+            syncDataJsonObj.put("shoppingLists", shoppingListJsonObj);
+            syncDataJsonObj.put("items", itemJsonObj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return syncDataJsonObj.toString();
+    }
+
+    public void insertIntoDbFromJsonString(String jsonString) {
+        try {
+            JSONObject inputObj = new JSONObject(jsonString);
+            JSONObject shoppingListsObj = (JSONObject) inputObj.get("shoppingLists");
+            List<ShoppingList> incomingShoppingLists = getShoppingListsFromJSON(shoppingListsObj.getJSONArray("shoppingList"));
+            for (ShoppingList shoppingList : incomingShoppingLists) {
+                insertShoppingList(shoppingList);
+            }
+
+            JSONObject itemsObj = (JSONObject) inputObj.get("items");
+            List<Item> incomingItems = getItemsFromJSON(itemsObj.getJSONArray("item"));
+            for (Item item : incomingItems) {
+                insertItem(item);
+            }
+
+            JSONObject usersObj = (JSONObject) inputObj.get("users");
+            List<User> incomingUsers = getUsersFromJSON(usersObj.getJSONArray("user"));
+            for (User user : incomingUsers) {
+                insertUser(user);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public List<ShoppingList> getShoppingListsFromJSON(JSONArray jsonArray) throws JSONException {
+        List<ShoppingList> shoppingLists = new ArrayList<ShoppingList>();
+        ShoppingList shoppingList;
+        for (int i = 0; i < jsonArray.length(); i++) {
+            shoppingList = new ShoppingList(jsonArray.getJSONObject(i));
+
+            shoppingLists.add(shoppingList);
+        }
+        return shoppingLists;
+    }
+
+    public List<Item> getItemsFromJSON(JSONArray jsonArray) throws JSONException {
+        List<Item> items = new ArrayList<Item>();
+        Item item;
+        for (int i = 0; i < jsonArray.length(); i++) {
+            item = new Item(jsonArray.getJSONObject(i));
+
+            items.add(item);
+        }
+        return items;
+    }
+
+    public List<User> getUsersFromJSON(JSONArray jsonArray) throws JSONException {
+        List<User> users = new ArrayList<User>();
+        User user;
+        for (int i = 0; i < jsonArray.length(); i++) {
+            user = new User(jsonArray.getJSONObject(i));
+
+            users.add(user);
+        }
+        return users;
+    }
     public static Intent createShareIntent(String shareString) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);

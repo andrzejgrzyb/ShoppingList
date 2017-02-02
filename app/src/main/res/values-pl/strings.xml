@@ -61,4 +61,13 @@
     <string name="share_app_string">Cześć. Korzystam z Listy zakupów, darmowej aplikacji, dzięki której możesz mieć swoją listę zakupów zawsze przy sobie. Pobierz ją ze Sklepu Play. </string>
     <string name="contact_email_text">Zostaw proszę poniższe informacje o telefonie.</string>
     <string name="continue_without_signin">Kontunuuj bez logowania</string>
+    <string name="loading">Ładowanie...</string>
+    <string name="continue_as">Kontynuuj jako %s</string>
+    <string name="desc_app_icon">Logo Listy Zakupów</string>
+    <string name="sign_out">Wyloguj</string>
+    <string name="signed_in_as">Zalogowany jako: %s</string>
+    <string name="signed_out">Wylogowany</string>
+    <string name="signin_with_google">Zaloguj z Google</string>
+    <string name="signing_in">Logowanie...</string>
+    <string name="synchronize">Synchronizuj</string>
 </resources>

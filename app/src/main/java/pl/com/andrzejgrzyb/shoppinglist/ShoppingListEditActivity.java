@@ -72,7 +72,7 @@ public class ShoppingListEditActivity extends AppCompatActivity {
             shoppingListId = intent.getLongExtra(EXTRA_SHOPPING_LIST_ID, 0);
             setTitle(R.string.title_activity_shopping_list_edit);
 
-            Cursor cursor = dbUtilities.db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
+            Cursor cursor = dbUtilities.getDb().query(DbContract.ShoppingListsEntry.TABLE_NAME,
                     new String[]{DbContract.ShoppingListsEntry.COLUMN_NAME, DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION}, // columns
                     DbContract.ShoppingListsEntry._ID + " = ?",
                     new String[]{String.valueOf(shoppingListId)},

@@ -201,4 +201,5 @@
         <item>en</item>
         <item>pl</item>
     </string-array>
+    <string name="synchronize">Synchronize</string>
 </resources>

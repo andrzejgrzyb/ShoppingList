@@ -51,7 +51,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD    + " INTEGER NOT NULL, " +
                 DbContract.ShoppingListsEntry.COLUMN_NAME        + " TEXT NOT NULL, " +
                 DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION + " TEXT, " +
-                DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD + " TEXT NOT NULL, " +
+//                DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD + " TEXT NOT NULL, " +
                 DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD    + " TEXT NOT NULL, " +
                 DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE   + " INTEGER NOT NULL, " +
 //                DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID + " INTEGER NOT NULL, " +
@@ -72,8 +72,8 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.UsersEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 DbContract.UsersEntry.COLUMN_ID_CLOUD + " INTEGER NOT NULL, " +
                 DbContract.UsersEntry.COLUMN_EMAIL + " TEXT NOT NULL, " +
-                DbContract.UsersEntry.COLUMN_NAME     + " TEXT NOT NULL " +
-
+                DbContract.UsersEntry.COLUMN_NAME     + " TEXT NOT NULL, " +
+                DbContract.UsersEntry.COLUMN_IMAGE     + " TEXT NOT NULL " +
                 ");";
         db.execSQL(SQL_CREATE_USERS_TABLE);
 

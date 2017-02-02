@@ -126,7 +126,7 @@ public class ItemEditActivity extends AppCompatActivity {
             itemId = intent.getLongExtra(EXTRA_ITEM_ID, 0);
             setTitle(R.string.title_activity_item_edit);
 
-            Cursor cursor = dbUtilities.db.query(DbContract.ItemsEntry.TABLE_NAME,
+            Cursor cursor = dbUtilities.getDb().query(DbContract.ItemsEntry.TABLE_NAME,
                     null, // columns
                     DbContract.ItemsEntry._ID + " = ?",
                     new String[]{String.valueOf(itemId)},

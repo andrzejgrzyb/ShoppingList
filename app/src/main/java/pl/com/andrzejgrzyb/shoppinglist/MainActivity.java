@@ -95,22 +95,6 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-
-        // Get some fake ShoppingList data
-//        long userId;
-//        long shoppingListId;
-//        userId = DbDummyData.insertDummyUser(this, "andgrzyb", "andrzej");
-//        shoppingListId = DbDummyData.insertDummyShoppingList(this, "Biedronka", "zakupy spożywcze", userId);
-//        DbDummyData.insertDummyItem(this, "mleko", 1.5, "L", shoppingListId, 0, 0, userId);
-//        DbDummyData.insertDummyItem(this, "ser żółty", 300, "g", shoppingListId, 1, 0, userId);
-//        DbDummyData.insertDummyItem(this, "bułki", 5, "szt.", shoppingListId, 2, 0, userId);
-//        shoppingListId = DbDummyData.insertDummyShoppingList(this, "Castorama", "przy okazji jak się będzie", userId);
-//        DbDummyData.insertDummyItem(this, "młotek", 1, "szt.", shoppingListId, 0, 0, userId);
-//        DbDummyData.insertDummyItem(this, "kołki rozporowe 4x10mm", 8, "szt.", shoppingListId, 1, 0, userId);
-//        DbDummyData.insertDummyItem(this, "gwoździe", 50, "szt.", shoppingListId, 2, 0, userId);
-//        DbDummyData.insertDummyItem(this, "żarówka 100W", 1, "szt.", shoppingListId, 2, 0, userId);
-
-
         // Populate Shopping Lists list
         shoppingListsListView = (ListView) findViewById(R.id.shopping_lists_list_view);
 
@@ -266,7 +250,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-     //   getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -278,8 +262,12 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+        if (id == R.id.action_sync) {
+            Log.d(TAG, "getShoppingListsAndItemsInJSONString: \n" +
+                    dbUtilities.getShoppingListsAndItemsInJSONString());
         }
 
         return super.onOptionsItemSelected(item);
@@ -467,6 +455,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onSignedInUI");
         // Show user's name in Nav Drawer header
         TextView usernameTextView = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_user_name_textview);
+
         usernameTextView.setText(googleConnection.getName());
         // Place profile picture in Nav Drawer header
         ImageView navIcon = (ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_imageview);
