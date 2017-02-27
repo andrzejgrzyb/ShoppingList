@@ -113,7 +113,7 @@ public class TestDb  extends AndroidTestCase {
         shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD);
         shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_NAME);
         shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION);
-        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID);
+        shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD);
         shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE);
         shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID);
         shoppingListColumnHashSet.add(DbContract.ShoppingListsEntry.COLUMN_HASHTAG);
@@ -141,7 +141,7 @@ public class TestDb  extends AndroidTestCase {
         final HashSet<String> usersColumnHashSet = new HashSet<String>();
         usersColumnHashSet.add(DbContract.UsersEntry._ID);
         usersColumnHashSet.add(DbContract.UsersEntry.COLUMN_ID_CLOUD);
-        usersColumnHashSet.add(DbContract.UsersEntry.COLUMN_LOGIN);
+        usersColumnHashSet.add(DbContract.UsersEntry.COLUMN_EMAIL);
         usersColumnHashSet.add(DbContract.UsersEntry.COLUMN_NAME);
 
         columnNameIndex = c.getColumnIndex("name");
@@ -169,7 +169,7 @@ public class TestDb  extends AndroidTestCase {
         // Create ContentValues of what needs to be inserted
         ContentValues testValues = new ContentValues();
         testValues.put(DbContract.UsersEntry.COLUMN_ID_CLOUD, 0);
-        testValues.put(DbContract.UsersEntry.COLUMN_LOGIN, "test_login");
+        testValues.put(DbContract.UsersEntry.COLUMN_EMAIL, "test_login");
         testValues.put(DbContract.UsersEntry.COLUMN_NAME, "andrzej");
 
         // Insert values into database and get a row ID back
@@ -220,7 +220,7 @@ public class TestDb  extends AndroidTestCase {
         testValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, 0);
         testValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, "Zakupy w Biedronce");
         testValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, "Rzeczy, które trzeba kupić w Biedronce");
-        testValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID, testUser);
+        testValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, testUser);
         testValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, 0);
         testValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, TestUtilities.TEST_DATE);
         testValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, testUser);

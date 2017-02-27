@@ -12,6 +12,7 @@ import java.math.RoundingMode;
 import java.text.DateFormat;
 
 import android.support.v7.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -22,6 +23,7 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -186,7 +188,7 @@ public class DbUtilities {
             selectionArgs[i] = shoppingListsIds.get(i).toString();
         Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
                 null,
-                DbContract.ItemsEntry.COLUMN_LIST_ID + "=?",
+                DbContract.ItemsEntry.COLUMN_LIST_ID + " IN (" + TextUtils.join(",", Collections.nCopies(shoppingListsIds.size(), "?")) + ")",
                 selectionArgs,
                 null,
                 null,

@@ -7,7 +7,7 @@ public class ShoppingList {
 
 	public ShoppingList() { }
 	public ShoppingList(JSONObject obj) throws JSONException {
-		idCloud = obj.getInt("idCloud");
+		idCloud = obj.getLong("idCloud");
 		name = obj.getString("name");
 		description = obj.getString("description");
 		ownerIdCloud = obj.getString("ownerIdCloud");
