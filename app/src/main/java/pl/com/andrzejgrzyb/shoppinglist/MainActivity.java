@@ -32,8 +32,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,17 +42,14 @@ import java.util.Observable;
 import java.util.Observer;
 
 import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
-import pl.com.andrzejgrzyb.shoppinglist.data.DbHelper;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
-import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
-import pl.com.andrzejgrzyb.shoppinglist.googlesignin.State;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, Observer {
+        implements NavigationView.OnNavigationItemSelectedListener { //,Observer
 
     private ListView shoppingListsListView;
     private SimpleCursorAdapter cursorAdapter = null;
-    private GoogleConnection googleConnection;
+//    private GoogleConnection googleConnection;
     private DbUtilities dbUtilities;
     private final String TAG = this.getClass().getSimpleName();
     private static final int RC_SIGN_IN = 9001;
@@ -99,11 +95,12 @@ public class MainActivity extends AppCompatActivity
         shoppingListsListView = (ListView) findViewById(R.id.shopping_lists_list_view);
 
         // Create GoogleConnection object
-        googleConnection = new GoogleConnection(this);
-        googleConnection.addObserver(this);
-        googleConnection.connectSilently();
+//        googleConnection = new GoogleConnection(this);
+//        googleConnection.addObserver(this);
+//        googleConnection.connectSilently();
         // Get reference to DB
-        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+//        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+        dbUtilities = new DbUtilities(getApplicationContext());
 
         // Query DB to get Cursor to list of all Shopping Lists
         final Cursor cursor = dbUtilities.getAllShoppingLists();
@@ -265,10 +262,11 @@ public class MainActivity extends AppCompatActivity
 //        if (id == R.id.action_settings) {
 //            return true;
 //        }
-        if (id == R.id.action_sync) {
-            Log.d(TAG, "getShoppingListsAndItemsInJSONString: \n" +
-                    dbUtilities.getShoppingListsAndItemsInJSONString());
-        }
+//        if (id == R.id.action_sync) {
+//            Log.d(TAG, "getShoppingListsAndItemsInJSONString: \n" +
+//                    dbUtilities.getShoppingListsAndItemsInJSONString());
+//        }
+        // REMEMBER to uncomment the button in menu/main.xml !!!
 
         return super.onOptionsItemSelected(item);
     }
@@ -296,10 +294,10 @@ public class MainActivity extends AppCompatActivity
             openContactEmailIntent();
         } else if (id == R.id.nav_rate) {
             openAppRating(this);
-        } else if (id == R.id.nav_signout) {
-            googleConnection.disconnect();
-        } else if (id == R.id.nav_signin) {
-            googleConnection.connect();
+//        } else if (id == R.id.nav_signout) {
+//            googleConnection.disconnect();
+//        } else if (id == R.id.nav_signin) {
+//            googleConnection.connect();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -315,11 +313,7 @@ public class MainActivity extends AppCompatActivity
         // Close database
         dbUtilities.closeDb();
         Log.i(TAG, "onDestroy()");
-        googleConnection.deleteObserver(this);
-//        if (googleConnection.isSignedIn()) {
-//            googleConnection.disconnect();
-//        }
-
+//        googleConnection.deleteObserver(this);
     }
 
     @Override
@@ -407,105 +401,105 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void update(Observable observable, Object data) {
-        if (observable != googleConnection) {
-            return;
-        }
+//    @Override
+//    public void update(Observable observable, Object data) {
+//        if (observable != googleConnection) {
+//            return;
+//        }
+//
+//        switch ((State) data) {
+//            case CREATED:
+//   //             dialog.dismiss();
+//                onSignedOutUI();
+//                break;
+//            case OPENING:
+//     //           dialog.show();
+//                break;
+//            case OPENED:
+//    //            dialog.dismiss();
+//                // Update the user interface to reflect that the user is signed in.
+//                onSignedInUI();
+//
+//                // We are signed in!
+//                // Retrieve some profile information to personalize our app for the user.
+//
+//                break;
+//            case CLOSED:
+//   //             dialog.dismiss();
+//                onSignedOutUI();
+//                break;
+//        }
+//    }
+//    private void onSignedOutUI() {
+//        Log.d(TAG, "onSignOutUI");
+//        // Bring back default text (app name) and app icon in Nav Drawer header
+//        TextView usernameTextView = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_user_name_textview);
+//        usernameTextView.setText(R.string.app_name);
+//        ImageView navIcon = (ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_imageview);
+//        navIcon.setImageResource(R.mipmap.ic_launcher);
+//
+//        // Show and hide Sign In/Out buttons
+//        mNavigationView.getMenu().findItem(R.id.nav_signin).setVisible(true);
+//        mNavigationView.getMenu().findItem(R.id.nav_signout).setVisible(false);
+//
+//        if (dbUtilities != null)
+//            cursorAdapter.swapCursor(dbUtilities.getAllShoppingLists()).close();
+//    }
+//    private void onSignedInUI() {
+//        Log.d(TAG, "onSignedInUI");
+//        // Show user's name in Nav Drawer header
+//        TextView usernameTextView = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_user_name_textview);
+//
+//        usernameTextView.setText(googleConnection.getName());
+//        // Place profile picture in Nav Drawer header
+//        ImageView navIcon = (ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_imageview);
+//        String urlString = googleConnection.getPhotoUrlString();
+//        Log.d(TAG, "Image URL: " + urlString);
+//        new DownloadImageTask(navIcon).execute(urlString);
+//
+//        // Show and hide Sign In/Out buttons
+//        mNavigationView.getMenu().findItem(R.id.nav_signin).setVisible(false);
+//        mNavigationView.getMenu().findItem(R.id.nav_signout).setVisible(true);
+//
+//        if (dbUtilities != null)
+//         cursorAdapter.swapCursor(dbUtilities.getAllShoppingLists()).close();
+//
+//    }
 
-        switch ((State) data) {
-            case CREATED:
-   //             dialog.dismiss();
-                onSignedOutUI();
-                break;
-            case OPENING:
-     //           dialog.show();
-                break;
-            case OPENED:
-    //            dialog.dismiss();
-                // Update the user interface to reflect that the user is signed in.
-                onSignedInUI();
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        //    super.onActivityResult(requestCode, resultCode, data);
+//
+//        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+//        Log.d(TAG, "onActivityResult");
+//        if (requestCode == RC_SIGN_IN) {
+//            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+//            googleConnection.handleSignInResult(result);
+//        }
+//    }
 
-                // We are signed in!
-                // Retrieve some profile information to personalize our app for the user.
-
-                break;
-            case CLOSED:
-   //             dialog.dismiss();
-                onSignedOutUI();
-                break;
-        }
-    }
-    private void onSignedOutUI() {
-        Log.d(TAG, "onSignOutUI");
-        // Bring back default text (app name) and app icon in Nav Drawer header
-        TextView usernameTextView = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_user_name_textview);
-        usernameTextView.setText(R.string.app_name);
-        ImageView navIcon = (ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_imageview);
-        navIcon.setImageResource(R.mipmap.ic_launcher);
-
-        // Show and hide Sign In/Out buttons
-        mNavigationView.getMenu().findItem(R.id.nav_signin).setVisible(true);
-        mNavigationView.getMenu().findItem(R.id.nav_signout).setVisible(false);
-
-        if (dbUtilities != null)
-            cursorAdapter.swapCursor(dbUtilities.getAllShoppingLists()).close();
-    }
-    private void onSignedInUI() {
-        Log.d(TAG, "onSignedInUI");
-        // Show user's name in Nav Drawer header
-        TextView usernameTextView = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_user_name_textview);
-
-        usernameTextView.setText(googleConnection.getName());
-        // Place profile picture in Nav Drawer header
-        ImageView navIcon = (ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.nav_imageview);
-        String urlString = googleConnection.getPhotoUrlString();
-        Log.d(TAG, "Image URL: " + urlString);
-        new DownloadImageTask(navIcon).execute(urlString);
-
-        // Show and hide Sign In/Out buttons
-        mNavigationView.getMenu().findItem(R.id.nav_signin).setVisible(false);
-        mNavigationView.getMenu().findItem(R.id.nav_signout).setVisible(true);
-
-        if (dbUtilities != null)
-         cursorAdapter.swapCursor(dbUtilities.getAllShoppingLists()).close();
-
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //    super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        Log.d(TAG, "onActivityResult");
-        if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            googleConnection.handleSignInResult(result);
-        }
-    }
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-               // Log.e("Error", e.getMessage());
-               // e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
-        }
-    }
+//    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+//        ImageView bmImage;
+//
+//        public DownloadImageTask(ImageView bmImage) {
+//            this.bmImage = bmImage;
+//        }
+//
+//        protected Bitmap doInBackground(String... urls) {
+//            String urldisplay = urls[0];
+//            Bitmap mIcon11 = null;
+//            try {
+//                InputStream in = new java.net.URL(urldisplay).openStream();
+//                mIcon11 = BitmapFactory.decodeStream(in);
+//            } catch (Exception e) {
+//               // Log.e("Error", e.getMessage());
+//               // e.printStackTrace();
+//            }
+//            return mIcon11;
+//        }
+//
+//        protected void onPostExecute(Bitmap result) {
+//            bmImage.setImageBitmap(result);
+//        }
+//    }
 }
 

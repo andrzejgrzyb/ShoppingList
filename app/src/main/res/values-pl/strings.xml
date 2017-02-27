@@ -26,7 +26,6 @@
     <string name="notify_item_updated">Zaktualizowano produkt</string>
     <string name="notify_shopping_list_added">Dodano listę zakupów</string>
     <string name="notify_shopping_list_updated">Zaktualizowano listę zakupów</string>
-    <string name="ok"></string>
     <string name="percentCompleted">%1$.0f%% ukończono</string>
     <string name="radio_quantity_unit_pcs">szt.</string>
     <string name="share">Udostępnij</string>

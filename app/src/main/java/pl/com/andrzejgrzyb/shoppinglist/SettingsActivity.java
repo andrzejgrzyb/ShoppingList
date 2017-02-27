@@ -231,7 +231,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(List<Header> target) {
         if (!isSimplePreferences(this)) {
-            loadHeadersFromResource(R.xml.pref_headers, target);
+//            loadHeadersFromResource(R.xml.pref_headers, target);
         }
     }
 
@@ -297,7 +297,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_notification);
+//            addPreferencesFromResource(R.xml.pref_notification);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
@@ -327,7 +327,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_data_sync);
+//            addPreferencesFromResource(R.xml.pref_data_sync);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences

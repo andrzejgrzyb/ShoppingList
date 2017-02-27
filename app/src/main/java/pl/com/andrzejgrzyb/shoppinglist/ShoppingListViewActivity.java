@@ -26,7 +26,6 @@ import pl.com.andrzejgrzyb.shoppinglist.DragNDropList.DragNDropListView;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbHelper;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
-import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 
 public class ShoppingListViewActivity extends AppCompatActivity {
 
@@ -38,7 +37,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     private ShareActionProvider mShareActionProvider;
 
     // Google Sign-in
-    private GoogleConnection googleConnection;
+//    private GoogleConnection googleConnection;
 
     // Database
     private DbUtilities dbUtilities;
@@ -73,9 +72,11 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         itemsListView = (DragNDropListView) findViewById(R.id.item_list_view);
 
         // Create new connection to Google API
-        googleConnection = new GoogleConnection(this);
+//        googleConnection = new GoogleConnection(this);
         // Get reference to DB
-        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+        dbUtilities = new DbUtilities(getApplicationContext());
+//        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+
 
 
         // Query DB to get Cursor to Shopping List entry
@@ -199,7 +200,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        googleConnection.connectSilently();
+//        googleConnection.connectSilently();
     }
 
     @Override

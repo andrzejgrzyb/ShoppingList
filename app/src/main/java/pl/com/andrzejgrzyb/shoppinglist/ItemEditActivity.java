@@ -18,7 +18,6 @@ import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbHelper;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
 import pl.com.andrzejgrzyb.shoppinglist.data.RepeatListener;
-import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 
 public class ItemEditActivity extends AppCompatActivity {
     public static final String EXTRA_SHOPPING_LIST_ID = "shoppingListId";
@@ -39,7 +38,7 @@ public class ItemEditActivity extends AppCompatActivity {
     private String oldQuantityUnit;
 
     // Google Sign-in
-    private GoogleConnection googleConnection;
+//    private GoogleConnection googleConnection;
 
     // Database
     private DbUtilities dbUtilities;
@@ -107,9 +106,10 @@ public class ItemEditActivity extends AppCompatActivity {
         }));
 
         // Create new connection to Google API
-        googleConnection = new GoogleConnection(this);
+//        googleConnection = new GoogleConnection(this);
         // Get reference to DB
-        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
+        dbUtilities = new DbUtilities(getApplicationContext());
+//        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
 
 
         // Get the intent
@@ -177,7 +177,7 @@ public class ItemEditActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        googleConnection.connectSilently();
+//        googleConnection.connectSilently();
     }
     @Override
     public void onDestroy() {

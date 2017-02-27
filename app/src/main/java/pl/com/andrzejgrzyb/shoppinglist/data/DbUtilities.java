@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 
 import pl.com.andrzejgrzyb.shoppinglist.R;
-import pl.com.andrzejgrzyb.shoppinglist.googlesignin.GoogleConnection;
 import pl.com.andrzejgrzyb.shoppinglist.model.Item;
 import pl.com.andrzejgrzyb.shoppinglist.model.ShoppingList;
 import pl.com.andrzejgrzyb.shoppinglist.model.User;
@@ -38,7 +37,7 @@ import pl.com.andrzejgrzyb.shoppinglist.model.User;
  */
 public class DbUtilities {
     private static final String TAG = "DbUtilities";
-    private GoogleConnection googleConnection;
+//    private GoogleConnection googleConnection;
 
 
 
@@ -46,8 +45,10 @@ public class DbUtilities {
     private Context context;
 
 
-    public DbUtilities(Context incomingContext, GoogleConnection incomingGoogleConnection) {
-        googleConnection = incomingGoogleConnection;
+    public DbUtilities(Context incomingContext) {
+//    public DbUtilities(Context incomingContext, GoogleConnection incomingGoogleConnection) {
+
+//        googleConnection = incomingGoogleConnection;
         context = incomingContext;
 
         // Get reference to writable DB
@@ -367,10 +368,11 @@ public class DbUtilities {
 
     public String getCurrentUserIdCloud() {
         String userIdCloud;
-        if (googleConnection.isSignedIn()) {
-            userIdCloud = googleConnection.getId();
-        }
-        else userIdCloud = "0";
+//        if (googleConnection.isSignedIn()) {
+//            userIdCloud = googleConnection.getId();
+//        }
+//        else
+            userIdCloud = "0";
         Log.d(TAG, "getCurrentUserIdCloud(): " + userIdCloud);
         return userIdCloud;
     }
@@ -589,97 +591,97 @@ public class DbUtilities {
         return resultSet;
     }
 
-    public String getShoppingListsAndItemsInJSONString() {
-        Cursor shoppingListsCursor = getAllShoppingLists();
-        ArrayList<Long> shoppingListsIds = new ArrayList<Long>();
-        if (shoppingListsCursor.moveToFirst()) {
-            int colIndex = shoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry._ID);
-            while (!shoppingListsCursor.isAfterLast()) {
-                shoppingListsIds.add(shoppingListsCursor.getLong(colIndex));
-                shoppingListsCursor.moveToNext();
-            }
-        }
-        JSONObject userJsonObj = new JSONObject();
-        JSONObject shoppingListJsonObj = new JSONObject();
-        JSONObject itemJsonObj = new JSONObject();
-        JSONObject syncDataJsonObj = new JSONObject();
+//    public String getShoppingListsAndItemsInJSONString() {
+//        Cursor shoppingListsCursor = getAllShoppingLists();
+//        ArrayList<Long> shoppingListsIds = new ArrayList<Long>();
+//        if (shoppingListsCursor.moveToFirst()) {
+//            int colIndex = shoppingListsCursor.getColumnIndex(DbContract.ShoppingListsEntry._ID);
+//            while (!shoppingListsCursor.isAfterLast()) {
+//                shoppingListsIds.add(shoppingListsCursor.getLong(colIndex));
+//                shoppingListsCursor.moveToNext();
+//            }
+//        }
+//        JSONObject userJsonObj = new JSONObject();
+//        JSONObject shoppingListJsonObj = new JSONObject();
+//        JSONObject itemJsonObj = new JSONObject();
+//        JSONObject syncDataJsonObj = new JSONObject();
+//
+//        try {
+//            userJsonObj.put("id", googleConnection.getId());
+//            userJsonObj.put("token", googleConnection.getIdToken());
+//            userJsonObj.put("email", googleConnection.getEmail());
+//            userJsonObj.put("name", googleConnection.getName());
+//            userJsonObj.put("image", googleConnection.getPhotoUrlString());
+//            shoppingListJsonObj.put("shoppingList", cursor2Json(shoppingListsCursor));
+//            itemJsonObj.put("item", cursor2Json(getItemsOfShoppingLists(shoppingListsIds)));
+//            syncDataJsonObj.put("login", userJsonObj);
+//            syncDataJsonObj.put("shoppingLists", shoppingListJsonObj);
+//            syncDataJsonObj.put("items", itemJsonObj);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return syncDataJsonObj.toString();
+//    }
 
-        try {
-            userJsonObj.put("id", googleConnection.getId());
-            userJsonObj.put("token", googleConnection.getIdToken());
-            userJsonObj.put("email", googleConnection.getEmail());
-            userJsonObj.put("name", googleConnection.getName());
-            userJsonObj.put("image", googleConnection.getPhotoUrlString());
-            shoppingListJsonObj.put("shoppingList", cursor2Json(shoppingListsCursor));
-            itemJsonObj.put("item", cursor2Json(getItemsOfShoppingLists(shoppingListsIds)));
-            syncDataJsonObj.put("login", userJsonObj);
-            syncDataJsonObj.put("shoppingLists", shoppingListJsonObj);
-            syncDataJsonObj.put("items", itemJsonObj);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+//    public void insertIntoDbFromJsonString(String jsonString) {
+//        try {
+//            JSONObject inputObj = new JSONObject(jsonString);
+//            JSONObject shoppingListsObj = (JSONObject) inputObj.get("shoppingLists");
+//            List<ShoppingList> incomingShoppingLists = getShoppingListsFromJSON(shoppingListsObj.getJSONArray("shoppingList"));
+//            for (ShoppingList shoppingList : incomingShoppingLists) {
+//                insertShoppingList(shoppingList);
+//            }
+//
+//            JSONObject itemsObj = (JSONObject) inputObj.get("items");
+//            List<Item> incomingItems = getItemsFromJSON(itemsObj.getJSONArray("item"));
+//            for (Item item : incomingItems) {
+//                insertItem(item);
+//            }
+//
+//            JSONObject usersObj = (JSONObject) inputObj.get("users");
+//            List<User> incomingUsers = getUsersFromJSON(usersObj.getJSONArray("user"));
+//            for (User user : incomingUsers) {
+//                insertUser(user);
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
-        return syncDataJsonObj.toString();
-    }
+//    public List<ShoppingList> getShoppingListsFromJSON(JSONArray jsonArray) throws JSONException {
+//        List<ShoppingList> shoppingLists = new ArrayList<ShoppingList>();
+//        ShoppingList shoppingList;
+//        for (int i = 0; i < jsonArray.length(); i++) {
+//            shoppingList = new ShoppingList(jsonArray.getJSONObject(i));
+//
+//            shoppingLists.add(shoppingList);
+//        }
+//        return shoppingLists;
+//    }
 
-    public void insertIntoDbFromJsonString(String jsonString) {
-        try {
-            JSONObject inputObj = new JSONObject(jsonString);
-            JSONObject shoppingListsObj = (JSONObject) inputObj.get("shoppingLists");
-            List<ShoppingList> incomingShoppingLists = getShoppingListsFromJSON(shoppingListsObj.getJSONArray("shoppingList"));
-            for (ShoppingList shoppingList : incomingShoppingLists) {
-                insertShoppingList(shoppingList);
-            }
+//    public List<Item> getItemsFromJSON(JSONArray jsonArray) throws JSONException {
+//        List<Item> items = new ArrayList<Item>();
+//        Item item;
+//        for (int i = 0; i < jsonArray.length(); i++) {
+//            item = new Item(jsonArray.getJSONObject(i));
+//
+//            items.add(item);
+//        }
+//        return items;
+//    }
 
-            JSONObject itemsObj = (JSONObject) inputObj.get("items");
-            List<Item> incomingItems = getItemsFromJSON(itemsObj.getJSONArray("item"));
-            for (Item item : incomingItems) {
-                insertItem(item);
-            }
-
-            JSONObject usersObj = (JSONObject) inputObj.get("users");
-            List<User> incomingUsers = getUsersFromJSON(usersObj.getJSONArray("user"));
-            for (User user : incomingUsers) {
-                insertUser(user);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public List<ShoppingList> getShoppingListsFromJSON(JSONArray jsonArray) throws JSONException {
-        List<ShoppingList> shoppingLists = new ArrayList<ShoppingList>();
-        ShoppingList shoppingList;
-        for (int i = 0; i < jsonArray.length(); i++) {
-            shoppingList = new ShoppingList(jsonArray.getJSONObject(i));
-
-            shoppingLists.add(shoppingList);
-        }
-        return shoppingLists;
-    }
-
-    public List<Item> getItemsFromJSON(JSONArray jsonArray) throws JSONException {
-        List<Item> items = new ArrayList<Item>();
-        Item item;
-        for (int i = 0; i < jsonArray.length(); i++) {
-            item = new Item(jsonArray.getJSONObject(i));
-
-            items.add(item);
-        }
-        return items;
-    }
-
-    public List<User> getUsersFromJSON(JSONArray jsonArray) throws JSONException {
-        List<User> users = new ArrayList<User>();
-        User user;
-        for (int i = 0; i < jsonArray.length(); i++) {
-            user = new User(jsonArray.getJSONObject(i));
-
-            users.add(user);
-        }
-        return users;
-    }
+//    public List<User> getUsersFromJSON(JSONArray jsonArray) throws JSONException {
+//        List<User> users = new ArrayList<User>();
+//        User user;
+//        for (int i = 0; i < jsonArray.length(); i++) {
+//            user = new User(jsonArray.getJSONObject(i));
+//
+//            users.add(user);
+//        }
+//        return users;
+//    }
     public static Intent createShareIntent(String shareString) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
