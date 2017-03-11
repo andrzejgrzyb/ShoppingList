@@ -14,4 +14,9 @@
         android:orderInCategory="100"
         android:title="@string/menu_clear_checked"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_item_sort"
+        android:orderInCategory="100"
+        android:title="@string/menu_sort"
+        app:showAsAction="never" />
 </menu>

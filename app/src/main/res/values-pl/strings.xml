@@ -57,7 +57,7 @@
     <string name="pref_summary_share_list_desc">Dodaj opis listy</string>
     <string name="pref_summary_share_list_title">Dodaj nazwę listy</string>
     <string name="pref_title_share_list_desc">Opis</string>
-    <string name="share_app_string">Cześć. Korzystam z Listy zakupów, darmowej aplikacji, dzięki której możesz mieć swoją listę zakupów zawsze przy sobie. Pobierz ją ze Sklepu Play. </string>
+    <string name="share_app_string">Cześć. Korzystam z Listy zakupów, darmowej aplikacji, dzięki której możesz mieć swoją listę zakupów zawsze przy sobie. Pobierz ją ze Sklepu Play: http://play.google.com/store/apps/details?id=%s</string>
     <string name="contact_email_text">Zostaw proszę poniższe informacje o telefonie.</string>
     <string name="continue_without_signin">Kontunuuj bez logowania</string>
     <string name="loading">Ładowanie...</string>
@@ -69,4 +69,13 @@
     <string name="signin_with_google">Zaloguj z Google</string>
     <string name="signing_in">Logowanie...</string>
     <string name="synchronize">Synchronizuj</string>
+    <string name="menu_sort">Sortuj...</string>
+    <string-array name="array_sort_dialog">
+        <item>A - Z</item>
+        <item>Niezaznaczone - zaznaczone</item>
+        <item>Zaznaczone - niezaznaczone</item>
+        <item>Nowsze - starsze</item>
+        <item>Starsze - nowsze</item>
+    </string-array>
+    <string name="pref_cat_info">Informacje</string>
 </resources>

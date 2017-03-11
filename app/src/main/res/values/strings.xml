@@ -134,6 +134,8 @@
     <string name="pref_key_language" translatable="false">Language</string>
 
     <string name="pref_cat_sharing">Sharing shopping lists via messsages</string>
+    <string name="pref_cat_info">Information</string>
+
 
     <string name="pref_title_share_list_title">Name</string>
     <string name="pref_summary_share_list_title">Include list name</string>
@@ -142,7 +144,10 @@
     <string name="pref_title_share_list_desc">Description</string>
     <string name="pref_summary_share_list_desc">Include list description</string>
     <string name="pref_key_share_list_desc" translatable="false">Description</string>
-    <string name="share_app_string">Hi. I\'m using Shopping List, free app for having your shopping list everywhere you go. Download it from Play Store.</string>
+
+    <string name="pref_title_version">Version</string>
+
+    <string name="share_app_string">Hi. I\'m using Shopping List, free app for having your shopping list everywhere you go. Download it from Play Store: http://play.google.com/store/apps/details?id=%s</string>
     <string name="contact_email_address" translatable="false">mgr.inz.andrzej.grzyb@gmail.com</string>
     <string name="contact_email_text">Please, leave your phone\'s properties below.</string>
     <string name="continue_without_signin">Continue without signing in</string>
@@ -167,4 +172,12 @@
         <item>pl</item>
     </string-array>
     <string name="synchronize">Synchronize</string>
+    <string name="menu_sort">Sort...</string>
+    <string-array name="array_sort_dialog">
+        <item>A - Z</item>
+        <item>Unchecked - checked</item>
+        <item>Checked - unchecked</item>
+        <item>Newest - oldest</item>
+        <item>Oldest - newest</item>
+    </string-array>
 </resources>

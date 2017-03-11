@@ -321,6 +321,28 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                 refreshListView();
                 return true;
 
+            case R.id.menu_item_sort:
+
+                // Instantiate an AlertDialog.Builder with its constructor
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                //  Chain together various setter methods to set the dialog characteristics
+                builder.setTitle(R.string.menu_sort);
+
+                builder.setItems(R.array.array_sort_dialog,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (dbUtilities.sortItems(which, shoppingListId)) {
+                                    refreshListView();
+                                }
+                            }
+                        }
+                );
+                //  Get the AlertDialog from create() and show it
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                refreshListView();
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.

@@ -288,7 +288,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
-            String shareString = getResources().getString(R.string.share_app_string);
+            String shareString = getResources().getString(R.string.share_app_string, getPackageName());
             startActivity(DbUtilities.createShareIntent(shareString));
         } else if (id == R.id.nav_contact) {
             openContactEmailIntent();
@@ -370,34 +370,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public static void openAppRating(Context context) {
-        Intent rateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.getPackageName()));
-        boolean marketFound = false;
-
-        // find all applications able to handle our rateIntent
-        final List<ResolveInfo> otherApps = context.getPackageManager().queryIntentActivities(rateIntent, 0);
-        for (ResolveInfo otherApp: otherApps) {
-            // look for Google Play application
-            if (otherApp.activityInfo.applicationInfo.packageName.equals("com.android.vending")) {
-
-                ActivityInfo otherAppActivity = otherApp.activityInfo;
-                ComponentName componentName = new ComponentName(
-                        otherAppActivity.applicationInfo.packageName,
-                        otherAppActivity.name
-                );
-                rateIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-                rateIntent.setComponent(componentName);
-                context.startActivity(rateIntent);
-                marketFound = true;
-                break;
-
-            }
-        }
-
-        // if GP not present on device, open web browser
-        if (!marketFound) {
-            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+context.getPackageName()));
-            webIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-            context.startActivity(webIntent);
+        try {
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=" + context.getPackageName())));
+        } catch (android.content.ActivityNotFoundException e) {
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=" + context.getPackageName())));
         }
     }
 

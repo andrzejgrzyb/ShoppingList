@@ -427,6 +427,53 @@ public class DbUtilities {
         return result;
     }
 
+    public boolean sortItems(int sortType, long shoppingListId) {
+        String order;
+        switch (sortType) {
+            case 0: // A - Z
+                order = DbContract.ItemsEntry.COLUMN_NAME;
+                break;
+            case 1:  // Unchecked - checked
+                order = DbContract.ItemsEntry.COLUMN_CHECKED + ", " + DbContract.ItemsEntry.COLUMN_POSITION;
+                break;
+            case 2: // Checked - unchecked
+                order = DbContract.ItemsEntry.COLUMN_CHECKED + " DESC, " + DbContract.ItemsEntry.COLUMN_POSITION;
+                break;
+            case 3: // Newest - oldest
+                order = DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE + " DESC, " + DbContract.ItemsEntry.COLUMN_POSITION;
+                break;
+            case 4: // Oldest - newest
+                order = DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE + ", " + DbContract.ItemsEntry.COLUMN_POSITION;
+                break;
+            default:
+                order = null;
+                break;
+        }
+        // get cursor with items in requested order
+        Cursor cursor = db.query(DbContract.ItemsEntry.TABLE_NAME,
+                null,
+                DbContract.ItemsEntry.COLUMN_LIST_ID + " = ?",
+                new String[]{Long.toString(shoppingListId)},
+                null,
+                null,
+                order,
+                null);
+        // iterate cursor and update items' positions
+        if (cursor.moveToFirst()) {
+            do {
+                // update item's position (itemId, itemPosition)
+                updateItemPosition(cursor.getLong(
+                        cursor.getColumnIndex(DbContract.ItemsEntry._ID)),
+                        cursor.getPosition());
+            }
+            while (cursor.moveToNext());
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     public int getShoppingListItemsCount(long shoppingListId) {
         // get cursor with all items
         Cursor cursor = getShoppingListItemsCursor(shoppingListId);
@@ -497,7 +544,8 @@ public class DbUtilities {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, newPosition);
-        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
+        // since changing position is not a modification, there no date changing
+//        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
 //        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
 

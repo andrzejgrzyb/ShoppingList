@@ -8,10 +8,13 @@ android {
         applicationId "pl.com.andrzejgrzyb.shoppinglist"
         minSdkVersion 9
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
+        versionCode 2
+        versionName "1.0.1"
+//        multiDexEnabled true
 
+    }
+    applicationVariants.all { variant ->
+        variant.resValue "string", "versionName", variant.versionName
     }
     buildTypes {
         release {
@@ -31,6 +34,6 @@ dependencies {
 // Dependency for Google Sign-In
 
 //    compile 'com.google.android.gms:play-services:9.6.1'
-    compile 'com.android.support:multidex:1.0.1'
+//    compile 'com.android.support:multidex:1.0.1'
 
 }

@@ -45,5 +45,10 @@
         <!--android:selectAllOnFocus="true"-->
         <!--android:singleLine="true"-->
         <!--android:title="@string/pref_title_share_suffix" />-->
-
+    <PreferenceCategory
+        android:title="@string/pref_cat_info"/>
+    <Preference
+        android:title="@string/pref_title_version"
+        android:summary="@string/versionName"
+        android:key="@string/pref_title_version" />
 </PreferenceScreen>

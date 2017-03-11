@@ -63,8 +63,8 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+"
-                android:id="@+id/quantity_plus_button" />
+                android:text="-"
+                android:id="@+id/quantity_minus_button" />
 
             <EditText
                 android:layout_width="wrap_content"
@@ -82,8 +82,8 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-"
-                android:id="@+id/quantity_minus_button" />
+                android:text="+"
+                android:id="@+id/quantity_plus_button" />
 
         </LinearLayout>
 
