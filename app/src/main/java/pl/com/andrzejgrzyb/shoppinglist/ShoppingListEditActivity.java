@@ -24,10 +24,6 @@ public class ShoppingListEditActivity extends AppCompatActivity {
     private String oldName;
     private String oldDescription;
 
-    // Google Sign-in
-//    private GoogleConnection googleConnection;
-
-    // Database
     private DbUtilities dbUtilities;
 
 

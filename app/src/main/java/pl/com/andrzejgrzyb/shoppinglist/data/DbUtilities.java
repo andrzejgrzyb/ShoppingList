@@ -37,18 +37,11 @@ import pl.com.andrzejgrzyb.shoppinglist.model.User;
  */
 public class DbUtilities {
     private static final String TAG = "DbUtilities";
-//    private GoogleConnection googleConnection;
-
-
-
     private SQLiteDatabase db;
     private Context context;
 
 
     public DbUtilities(Context incomingContext) {
-//    public DbUtilities(Context incomingContext, GoogleConnection incomingGoogleConnection) {
-
-//        googleConnection = incomingGoogleConnection;
         context = incomingContext;
 
         // Get reference to writable DB
@@ -97,8 +90,6 @@ public class DbUtilities {
     public Cursor getAllShoppingLists() {
         Cursor cursor = db.query(DbContract.ShoppingListsEntry.TABLE_NAME,
                 null,
-//                DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD + "=?",
-//                new String[] {getCurrentUserIdCloud()},
                 null, null,
                 null,
                 null,
@@ -126,10 +117,8 @@ public class DbUtilities {
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD, idCloud);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, name);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, description);
-//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, getCurrentUserIdCloud());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, getCurrentUserIdCloud());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_HASHTAG, 0);
 
@@ -171,12 +160,8 @@ public class DbUtilities {
         if (name != null) contentValues.put(DbContract.ShoppingListsEntry.COLUMN_NAME, name);
         if (description != null)
             contentValues.put(DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION, description);
-//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_PERMITTED_USER_ID_CLOUD, ownerId);
-//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_OWNER_ID_CLOUD, ownerIdCloud);
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
         contentValues.put(DbContract.ShoppingListsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
-//        contentValues.put(DbContract.ShoppingListsEntry.COLUMN_HASHTAG, hashTag);
 
         int result = db.update(DbContract.ShoppingListsEntry.TABLE_NAME, contentValues, where, whereArgs);
 
@@ -216,7 +201,6 @@ public class DbUtilities {
         contentValues.put(DbContract.ItemsEntry.COLUMN_POSITION, position);
         contentValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, 0);
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-//        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
 
         // Insert ContentValues into the table and get row id back
@@ -261,7 +245,6 @@ public class DbUtilities {
         contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY, quantity);
         contentValues.put(DbContract.ItemsEntry.COLUMN_QUANTITY_UNIT, quantityUnit);
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFICATION_DATE, getCurrentTime());
-//        contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID, getCurrentUserIdFromDB());
         contentValues.put(DbContract.ItemsEntry.COLUMN_MODIFIED_BY_ID_CLOUD, getCurrentUserIdCloud());
         // Uncheck item
         contentValues.put(DbContract.ItemsEntry.COLUMN_CHECKED, 0);

@@ -19,5 +19,5 @@ package pl.com.andrzejgrzyb.shoppinglist.DragNDropList;
 import android.widget.ListAdapter;
 
 public interface DragNDropAdapter extends ListAdapter, DragNDropListView.OnItemDragNDropListener {
-	public int getDragHandler();
+    int getDragHandler();
 }

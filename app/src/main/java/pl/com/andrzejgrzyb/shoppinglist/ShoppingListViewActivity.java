@@ -3,12 +3,11 @@ package pl.com.andrzejgrzyb.shoppinglist;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
@@ -20,103 +19,79 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnItemClick;
 import pl.com.andrzejgrzyb.shoppinglist.DragNDropList.DragNDropCursorAdapter;
 import pl.com.andrzejgrzyb.shoppinglist.DragNDropList.DragNDropListView;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
-import pl.com.andrzejgrzyb.shoppinglist.data.DbHelper;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
 
 public class ShoppingListViewActivity extends AppCompatActivity {
 
     public static final String EXTRA_SHOPPING_LIST_ID = "shoppingListId";
-    private DragNDropCursorAdapter cursorAdapter = null;
-    private DragNDropListView itemsListView;
+    private DragNDropCursorAdapter cursorAdapter;
+
     private Cursor shoppingListItemsCursor;
     private long shoppingListId;
+    private long shoppingListIdCloud;
     private ShareActionProvider mShareActionProvider;
 
-    // Google Sign-in
-//    private GoogleConnection googleConnection;
-
-    // Database
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+    @BindView(R.id.item_list_view)
+    DragNDropListView itemsListView;
     private DbUtilities dbUtilities;
+    @BindView(R.id.shopping_list_description_text_view)
+    TextView shoppingListDescriptionTextView;
+    @BindView(R.id.empty_listview_textview)
+    TextView emptyListTextView;
 
+    @OnClick(R.id.toolbar)
+    public void onToolbarClick(View view) {
+        onBackPressed();
+    }
+
+    @OnClick(R.id.fab)
+    public void onFabClick(View view) {
+        Intent intent = new Intent(ShoppingListViewActivity.this, ItemEditActivity.class);
+        intent.putExtra(ItemEditActivity.EXTRA_SHOPPING_LIST_ID, shoppingListId);
+        intent.putExtra(ItemEditActivity.EXTRA_SHOPPING_LIST_ID_CLOUD, shoppingListIdCloud);
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LocaleHelper.onCreate(this);
         setContentView(R.layout.activity_shopping_list_view);
-
-        // Get toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
         // Add back arrow to the toolbar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onBackPressed();
-                }
-            });
         }
 
         // Get Shopping List ID from Intent
         shoppingListId = getIntent().getLongExtra(EXTRA_SHOPPING_LIST_ID, 0);
 
-        // Get reference to the ListView
-        itemsListView = (DragNDropListView) findViewById(R.id.item_list_view);
-
-        // Create new connection to Google API
-//        googleConnection = new GoogleConnection(this);
-        // Get reference to DB
         dbUtilities = new DbUtilities(getApplicationContext());
-//        dbUtilities = new DbUtilities(getApplicationContext(), googleConnection);
 
-
-
-        // Query DB to get Cursor to Shopping List entry
-        final Cursor shoppingListCursor = dbUtilities.getShoppingListCursor(shoppingListId);
-        shoppingListCursor.moveToFirst();
-
-        //Get Name and Description strings
-        String shoppingListName = shoppingListCursor.getString(shoppingListCursor.getColumnIndex(
-                DbContract.ShoppingListsEntry.COLUMN_NAME));
-        String shoppingListDescription = shoppingListCursor.getString(shoppingListCursor.getColumnIndex(
-                DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION));
-        // Set the header
-        setTitle(shoppingListName);
-        // Set description
-        TextView shoppingListDescriptionTextView = (TextView) findViewById(R.id.shopping_list_description_text_view);
-        if (shoppingListDescription.isEmpty()) {
-            shoppingListDescriptionTextView.setVisibility(View.GONE);
-        } else {
-            shoppingListDescriptionTextView.setText(shoppingListDescription);
-        }
-        // Get shopping list Cloud ID
-        final long shoppingListIdCloud = shoppingListCursor.getLong(shoppingListCursor.getColumnIndex(
-                DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD));
-
-        shoppingListCursor.close();
-        // populate Floating Action Button
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ShoppingListViewActivity.this, ItemEditActivity.class);
-                intent.putExtra(ItemEditActivity.EXTRA_SHOPPING_LIST_ID, shoppingListId);
-                intent.putExtra(ItemEditActivity.EXTRA_SHOPPING_LIST_ID_CLOUD, shoppingListIdCloud);
-                startActivity(intent);
-            }
-        });
+        extractShoppingListData();
 
         // Query DB to get Cursor to list of all Items of the Shopping List
         shoppingListItemsCursor = dbUtilities.getShoppingListItemsCursor(shoppingListId);
+        setupItemListView();
+        // When the list is empty show a TextView with an information about that
+        itemsListView.setEmptyView(emptyListTextView);
+    }
 
+    private void setupItemListView() {
         // Define SimpleCursorAdapter
         cursorAdapter = new DragNDropCursorAdapter(this,
                 R.layout.listview_item_list,
@@ -182,32 +157,50 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                 return false;
             }
         });
-
         // Add Context Menu to ListView
         this.registerForContextMenu(itemsListView);
+    }
 
-        // Open context menu when short click item
-        itemsListView.setOnItemClickListener(new DragNDropListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                openContextMenu(view);
-            }
-        });
-        // When the list is empty show a TextView with an information about that
-        itemsListView.setEmptyView((TextView) findViewById(R.id.empty_listview_textview));
+    @OnItemClick(R.id.item_list_view)
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        openContextMenu(view);
+    }
+
+    private void extractShoppingListData() {
+        // Query DB to get Cursor to Shopping List entry
+        final Cursor shoppingListCursor = dbUtilities.getShoppingListCursor(shoppingListId);
+        shoppingListCursor.moveToFirst();
+
+        //Get Name and Description strings
+        String shoppingListName = shoppingListCursor.getString(shoppingListCursor.getColumnIndex(
+                DbContract.ShoppingListsEntry.COLUMN_NAME));
+        String shoppingListDescription = shoppingListCursor.getString(shoppingListCursor.getColumnIndex(
+                DbContract.ShoppingListsEntry.COLUMN_DESCRIPTION));
+        // Set the header
+        setTitle(shoppingListName);
+        // Set description
+        if (shoppingListDescription.isEmpty()) {
+            shoppingListDescriptionTextView.setVisibility(View.GONE);
+        } else {
+            shoppingListDescriptionTextView.setText(shoppingListDescription);
+        }
+        // Get shopping list Cloud ID
+        shoppingListIdCloud = shoppingListCursor.getLong(shoppingListCursor.getColumnIndex(
+                DbContract.ShoppingListsEntry.COLUMN_ID_CLOUD));
+
+        shoppingListCursor.close();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-//        googleConnection.connectSilently();
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        if (v.getId()==R.id.item_list_view) {
+        if (v.getId() == R.id.item_list_view) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
 
             // Get name of clicked Item
@@ -224,7 +217,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         // Move Cursor to the clicked Shopping List item in the ListView
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         shoppingListItemsCursor.moveToPosition(info.position);
         // Get the _ID of clicked ShoppingList
         final long itemId = shoppingListItemsCursor.getInt(shoppingListItemsCursor.getColumnIndexOrThrow(DbContract.ShoppingListsEntry._ID));
@@ -284,10 +277,9 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                 refreshListView();
                 break;
             default:
-                Toast.makeText(this, "WTF?!", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "WTF?!", Toast.LENGTH_SHORT).show();
                 break;
         }
-
         return true;
     }
 
@@ -306,9 +298,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         // Fetch and store ShareActionProvider
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
 
-        if (mShareActionProvider != null) {
-            mShareActionProvider.setShareIntent(DbUtilities.createShareIntent(shareString));
-        }
+        setShareIntent(shareString);
         // Return true to display menu
         return true;
     }
@@ -320,9 +310,7 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                 dbUtilities.deleteCheckedItems(shoppingListId);
                 refreshListView();
                 return true;
-
             case R.id.menu_item_sort:
-
                 // Instantiate an AlertDialog.Builder with its constructor
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 //  Chain together various setter methods to set the dialog characteristics
@@ -347,20 +335,15 @@ public class ShoppingListViewActivity extends AppCompatActivity {
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
-
-
-
 
     // Call to update the share intent
-    private void setShareIntent(Intent shareIntent) {
+    private void setShareIntent(String shareString) {
         if (mShareActionProvider != null) {
-            mShareActionProvider.setShareIntent(shareIntent);
+            mShareActionProvider.setShareIntent(DbUtilities.createShareIntent(shareString));
         }
     }
-
 
     @Override
     public void onBackPressed() {
@@ -374,18 +357,15 @@ public class ShoppingListViewActivity extends AppCompatActivity {
         // Close cursor and database
         shoppingListItemsCursor.close();
         dbUtilities.closeDb();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
-//        cursorAdapter.notifyDataSetChanged();
     }
 
     public void refreshListView() {
         shoppingListItemsCursor = dbUtilities.getShoppingListItemsCursor(shoppingListId);
         cursorAdapter.swapCursor(shoppingListItemsCursor).close();
     }
-
 }
