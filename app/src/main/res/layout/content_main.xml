@@ -13,21 +13,12 @@
     tools:context="pl.com.andrzejgrzyb.shoppinglist.MainActivity"
     tools:showIn="@layout/activity_main">
 
-
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/shopping_lists_list_view"
+        android:scrollbars="vertical"
+        android:id="@+id/shopping_lists_recycler_view"
         android:paddingBottom="@dimen/listview_padding"
         android:clipToPadding="false"
         />
-    <TextView
-        android:id="@+id/empty_listview_textview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:padding="@dimen/listview_empty_label_padding"
-        android:visibility="gone"
-        android:text="@string/listview_main_empty_label"/>
-
 </LinearLayout>
