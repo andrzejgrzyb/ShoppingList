@@ -1,4 +1,4 @@
-package pl.com.andrzejgrzyb.shoppinglist;
+package pl.com.andrzejgrzyb.shoppinglist.activity;
 
 
 import android.annotation.TargetApi;
@@ -23,6 +23,9 @@ import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
 import java.util.List;
+
+import pl.com.andrzejgrzyb.shoppinglist.LocaleHelper;
+import pl.com.andrzejgrzyb.shoppinglist.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On

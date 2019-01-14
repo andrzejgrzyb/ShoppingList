@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 import pl.com.andrzejgrzyb.shoppinglist.R;
-import pl.com.andrzejgrzyb.shoppinglist.ShoppingListViewActivity;
+import pl.com.andrzejgrzyb.shoppinglist.activity.ShoppingListViewActivity;
 
 public class ShoppingListsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

@@ -1,4 +1,4 @@
-package pl.com.andrzejgrzyb.shoppinglist;
+package pl.com.andrzejgrzyb.shoppinglist.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +20,6 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,6 +28,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import pl.com.andrzejgrzyb.shoppinglist.BuildConfig;
+import pl.com.andrzejgrzyb.shoppinglist.LocaleHelper;
+import pl.com.andrzejgrzyb.shoppinglist.R;
 import pl.com.andrzejgrzyb.shoppinglist.adapter.ShoppingListHolderItem;
 import pl.com.andrzejgrzyb.shoppinglist.adapter.ShoppingListsRecyclerViewAdapter;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;

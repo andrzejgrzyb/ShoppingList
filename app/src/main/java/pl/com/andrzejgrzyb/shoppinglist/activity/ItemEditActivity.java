@@ -1,8 +1,7 @@
-package pl.com.andrzejgrzyb.shoppinglist;
+package pl.com.andrzejgrzyb.shoppinglist.activity;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,8 +13,9 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 import java.util.Arrays;
 
+import pl.com.andrzejgrzyb.shoppinglist.LocaleHelper;
+import pl.com.andrzejgrzyb.shoppinglist.R;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
-import pl.com.andrzejgrzyb.shoppinglist.data.DbHelper;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
 import pl.com.andrzejgrzyb.shoppinglist.data.RepeatListener;
 

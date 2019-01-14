@@ -10,7 +10,7 @@
         android:theme="@style/AppTheme">
         <!--android:name="android.support.multidex.MultiDexApplication"-->
         <activity
-            android:name="pl.com.andrzejgrzyb.shoppinglist.MainActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.activity.MainActivity"
             android:configChanges="locale"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -21,29 +21,29 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="pl.com.andrzejgrzyb.shoppinglist.ShoppingListViewActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.activity.ShoppingListViewActivity"
             android:configChanges="locale"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="pl.com.andrzejgrzyb.shoppinglist.ShoppingListEditActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.activity.ShoppingListEditActivity"
             android:configChanges="locale"
             android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateVisible" />
         <activity
-            android:name="pl.com.andrzejgrzyb.shoppinglist.ItemEditActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.activity.ItemEditActivity"
             android:configChanges="locale"
             android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateVisible" />
         <activity
-            android:name="pl.com.andrzejgrzyb.shoppinglist.SettingsActivity"
+            android:name="pl.com.andrzejgrzyb.shoppinglist.activity.SettingsActivity"
             android:configChanges="locale"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="pl.com.andrzejgrzyb.shoppinglist.MainActivity">
+            android:parentActivityName="pl.com.andrzejgrzyb.shoppinglist.activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="pl.com.andrzejgrzyb.shoppinglist.MainActivity" />
+                android:value="pl.com.andrzejgrzyb.shoppinglist.activity.MainActivity" />
         </activity>
     </application>
 

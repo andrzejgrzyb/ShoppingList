@@ -1,4 +1,4 @@
-package pl.com.andrzejgrzyb.shoppinglist;
+package pl.com.andrzejgrzyb.shoppinglist.activity;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

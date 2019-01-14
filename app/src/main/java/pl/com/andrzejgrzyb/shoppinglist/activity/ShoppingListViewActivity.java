@@ -1,4 +1,4 @@
-package pl.com.andrzejgrzyb.shoppinglist;
+package pl.com.andrzejgrzyb.shoppinglist.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +25,8 @@ import butterknife.OnClick;
 import butterknife.OnItemClick;
 import pl.com.andrzejgrzyb.shoppinglist.DragNDropList.DragNDropCursorAdapter;
 import pl.com.andrzejgrzyb.shoppinglist.DragNDropList.DragNDropListView;
+import pl.com.andrzejgrzyb.shoppinglist.LocaleHelper;
+import pl.com.andrzejgrzyb.shoppinglist.R;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbContract;
 import pl.com.andrzejgrzyb.shoppinglist.data.DbUtilities;
 
